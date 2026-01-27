@@ -211,3 +211,17 @@ To test if the camera is working properly, you can:
   sudo systemctl restart chrony
   chronyc tracking
   ```
+
+  # 3D camera on Gazebo simulation
+
+  The 3D camera plugin do not offers the compressed topics and messages. 
+
+  We have to create the compressed images with "image-transport" package.
+
+  This has to be included in the software launch file "yolo_prediction_sw.launch.py"
+
+  This reproduce the same behaviour as the hardware node where the properly installed driver already creates the compressed topics and compressed messages.
+
+  ```shell
+  ros2 launch my_robot_ai_identification yolo_prediction_sw.launch.py
+  ```
