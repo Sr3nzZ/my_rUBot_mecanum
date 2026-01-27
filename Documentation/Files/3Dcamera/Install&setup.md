@@ -156,10 +156,43 @@ source install/setup.bash
 ```
 - Launch with:
 ```bash
-ros2 launch ros2_orbbec_camera dabai.launch.py
+ros2 launch orbbec_camera dabai.launch.py
 ros2 launch orbbec_camera gemini2.launch.py
 ros2 launch orbbec_camera astra2.launch.py
 ```
+## Jetson Nano from LIMO robot
+The installation process is the same as in Raspberrypi.
+We have created a Dockerfile with the previous installation on Raspberrypi. 
+
+Partim del `limo_ros2` official repository (https://github.com/agilexrobotics/limo_ros2.git
+)
+Cal copiar, al Host de Jetson Nano, Dockerfile i el fitxer de drivers comprimit (zip) a un directori `limo_ws` i obrir VSCode:
+- Crear imatge i pujar-la directament a Docker hub:
+````shell
+cd ~/limo_ws   # o el directori on tens el Dockerfile
+sudo docker build -t manelpuig/ros2-humble-limo-ub:jetson .
+docker login
+sudo docker push manelpuig/ros2-humble-limo-ub:jetson
+````
+
+
+Open VScode window on `Docker_limo_orbbec`:
+````shell
+docker compose up -d
+````
+
+For udev rules we have to do it on Host:
+````shell
+cd ~/orbbec_sdk/script
+chmod +x install_udev_rules.sh
+sudo ./install_udev_rules.sh
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+````
+For GUI using X11:
+````shell
+xhost +local:root
+````
 
 # Program test
 To test if the camera is working properly, you can:

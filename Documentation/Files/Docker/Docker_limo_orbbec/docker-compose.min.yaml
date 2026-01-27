@@ -1,0 +1,28 @@
+name: limo_humble_orbbec_project
+
+services:
+  limo-humble-orbbec:
+    image: manelpuig/ros2-humble-limo-ub:latest
+    pull_policy: always
+    container_name: limo-humble-orbbec
+
+    network_mode: host
+    restart: unless-stopped
+
+    # privileged és acceptable en Jetson per USB + CAN + serial
+    privileged: true
+
+    environment:
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - ROS_DOMAIN_ID=10
+      - ROS_LOCALHOST_ONLY=0
+
+    volumes:
+      # USB devices (Orbbec camera)
+      - /dev:/dev
+
+      # Optional custom entrypoint
+      - ./limo_entrypoint.sh:/limo_entrypoint.sh:ro
+
+    entrypoint: ["/bin/bash", "/limo_entrypoint.sh"]
+    command: ["ros2", "launch", "limo_bringup", "limo_start.launch.py"]

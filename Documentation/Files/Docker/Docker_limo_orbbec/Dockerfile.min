@@ -1,0 +1,84 @@
+# ==========================================================
+# ARM64 - ROS2 Humble (base: theconstructai/limo:humble-v3)
+# Minimal: AgileX LIMO ROS2 + OrbbecSDK_ROS2 (headless)
+# No OrbbecViewer, no X11, no Gazebo.
+# ==========================================================
+
+FROM theconstructai/limo:humble-v3
+SHELL ["/bin/bash", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive
+
+# ----------------------------------------------------------
+# Fix ROS 2 apt key (EXPKEYSIG) - robust for this base image
+# ----------------------------------------------------------
+RUN set -eux; \
+    mkdir -p /etc/apt/disabled-sources; \
+    if ls /etc/apt/sources.list.d/* >/dev/null 2>&1; then \
+      grep -lR "packages\.ros\.org/ros2" /etc/apt/sources.list.d 2>/dev/null | while read -r f; do \
+        mv "$f" "/etc/apt/disabled-sources/$(basename "$f").disabled"; \
+      done; \
+    fi; \
+    if [ -f /etc/apt/sources.list ]; then \
+      sed -i 's|^\s*deb\s\+http://packages\.ros\.org/ros2/ubuntu|# disabled: &|g' /etc/apt/sources.list; \
+    fi; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends curl gnupg ca-certificates lsb-release; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN set -eux; \
+    mkdir -p /etc/apt/keyrings; \
+    curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+      | gpg --dearmor -o /etc/apt/keyrings/ros-archive-keyring.gpg; \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" \
+      > /etc/apt/sources.list.d/ros2.list
+
+# ----------------------------------------------------------
+# Minimal system + ROS deps for building camera/robot stacks
+# ----------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    build-essential \
+    cmake \
+    python3-pip \
+    python3-rosdep \
+    python3-colcon-common-extensions \
+    \
+    # USB access tools (udev rules are installed on the host)
+    udev \
+    usbutils \
+    libusb-1.0-0 \
+    libusb-1.0-0-dev \
+    \
+    # Common ROS camera stack deps (safe, broadly available)
+    ros-humble-xacro \
+    ros-humble-image-transport \
+    ros-humble-camera-info-manager \
+    ros-humble-diagnostic-updater \
+    ros-humble-cv-bridge \
+    ros-humble-image-transport-plugins \
+    \
+    && rm -rf /var/lib/apt/lists/*
+
+# rosdep (safe if already initialized in base)
+RUN rosdep init || true && \
+    for i in 1 2 3; do rosdep update && break || sleep 5; done
+
+# ----------------------------------------------------------
+# Workspace: limo_ros2 + OrbbecSDK_ROS2
+# ----------------------------------------------------------
+WORKDIR /root/ros2_ws/src
+RUN git clone https://github.com/agilexrobotics/limo_ros2.git && \
+    git clone https://github.com/orbbec/OrbbecSDK_ROS2.git
+
+WORKDIR /root/ros2_ws
+RUN source /opt/ros/humble/setup.bash && \
+    rosdep install --from-paths src --ignore-src -r -y && \
+    colcon build --symlink-install
+
+# ----------------------------------------------------------
+# Environment
+# ----------------------------------------------------------
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
+    echo "source /root/ros2_ws/install/setup.bash" >> /root/.bashrc
+
+CMD ["/bin/bash"]

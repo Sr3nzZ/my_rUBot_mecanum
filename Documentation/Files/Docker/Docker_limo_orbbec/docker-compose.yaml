@@ -1,0 +1,40 @@
+name: limo_humble_orbbec_project
+
+services:
+  limo-humble-orbbec-container:
+    image: manelpuig/ros2-humble-limo-ub:latest
+    pull_policy: always
+    container_name: limo-humble-orbbec-container
+
+    privileged: true
+    network_mode: host
+    restart: always
+
+    environment:
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - ROS_DOMAIN_ID=10
+      - ROS_LOCALHOST_ONLY=0
+
+      # X11 (needed for OrbbecViewer)
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+
+      # Optional fallbacks (enable only if needed)
+      # - LIBGL_ALWAYS_SOFTWARE=1
+      # - MESA_GL_VERSION_OVERRIDE=2.1
+
+    volumes:
+      # X11 socket
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+      # If you really want full device exposure (already implied by privileged)
+      - /dev:/dev
+
+      # Your overrides (see note below about install/)
+      - ./limo_base.launch.py:/root/my_rUBot_mecanum/install/limo_base/share/limo_base/launch/limo_base.launch.py:ro
+      - ./limo_start.launch.py:/root/my_rUBot_mecanum/install/limo_bringup/share/limo_bringup/launch/humble/limo_start.launch.py:ro
+
+      - ./limo_entrypoint.sh:/limo_entrypoint.sh:ro
+
+    entrypoint: ["/bin/bash", "/limo_entrypoint.sh"]
+    command: ["ros2", "launch", "limo_bringup", "limo_start.launch.py"]
