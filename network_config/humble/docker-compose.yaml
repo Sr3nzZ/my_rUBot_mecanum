@@ -19,26 +19,19 @@ services:
       - LIBGL_ALWAYS_SOFTWARE=1
       - MESA_GL_VERSION_OVERRIDE=2.1
       - CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml
-
     volumes:
       # Entry point script
       - ./entrypoint.pc.sh:/entrypoint.pc.sh:ro
-
       # Timezone from host (for correct log timestamps)
       - /etc/localtime:/etc/localtime:ro
-
       # X11 display for RViz/Gazebo
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-
       # GPU / rendering devices (if needed)
       - /dev/dri:/dev/dri
       - /dev/snd:/dev/snd
-
       # CycloneDDS configuration (PC side)
       - ./config:/config:ro
-
       # Optional: mount your ROS 2 workspace inside the container
       # - ./pc_ws:/root/pc_ws
-
     entrypoint: /entrypoint.pc.sh
     command: sleep infinity

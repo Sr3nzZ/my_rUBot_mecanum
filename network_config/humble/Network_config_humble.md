@@ -145,7 +145,12 @@ We will:
                 - Multi-robot labs where you want strict control over who sees who
 
 - Define `ROS_STATIC_PEERS` to specify robot/PC IP to communicate with
-- maintain the `cyclonedds.xml` file for generic network configurations (NetworkInterface, etc)
+- Define the `cyclonedds_pc.xml` and `cyclonedds_robot.xml` file for generic network configurations (NetworkInterface, etc)
+    - To obtain the NetworkInterface, type:
+        ````shell
+        ip -br link
+        ip -br addr
+        ````
 
 - Update `.bashrc` to use these configs
     - On the PC: 
@@ -154,43 +159,36 @@ We will:
         # --- ROS 2 base ---
         source /opt/ros/humble/setup.bash
         source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
-
         # --- Your workspace ---
-        source /root/ROS2_rUBot_mecanum_ws/install/setup.bash
-        cd ~/Desktop/ROS2_rUBot_mecanum_ws
-
+        source /home/Desktop/my_rUBot_mecanum/install/setup.bash
+        cd ~/Desktop/my_rUBot_mecanum
         # --- Gazebo / RViz usability ---
-        export GAZEBO_MODEL_PATH=/root/ROS2_rUBot_mecanum_ws/src/my_robot_bringup/models:${GAZEBO_MODEL_PATH}
+        export GAZEBO_MODEL_PATH=/home/Desktop/my_rUBot_mecanum/src/my_robot_bringup/models:${GAZEBO_MODEL_PATH}
         export QT_QPA_PLATFORM=xcb  # good default for RViz2 on many systems
-
         # --- ROS 2 networking ---
-        export ROS_DOMAIN_ID=1
+        export ROS_DOMAIN_ID=1 # PC-robot pair number 1
         export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-
-        # Option A: normal discovery (if multicast works)
-        # unset ROS_AUTOMATIC_DISCOVERY_RANGE
-        # unset ROS_STATIC_PEERS
-
-        # Option B: robust hotspot mode (recommended)
+        # robust hotspot mode (recommended)
         export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
-        export ROS_STATIC_PEERS="192.168.1.45"   # for multiple peers: "192.168.1.45;192.168.1.46"
-
+        export ROS_STATIC_PEERS="192.168.1.41"   # robot IP
         # CycloneDDS XML (interface binding, peers, etc.)
-        export CYCLONEDDS_URI=file:///root/ROS2_rUBot_mecanum_ws/network_config/Humble2/config/cyclonedds.xml
+        export CYCLONEDDS_URI=file:///home/Desktop/my_rUBot_mecanum/network_config/humble/config/cyclonedds_pc.xml
         ````
+        > write the proper workspace path, in PC case `/home/Desktop/my_rUBot_mecanum`
     - On the robot:
 
         ````bash
         source /opt/ros/humble/setup.bash
         source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
-        source /home/ubuntu/ROS2_rUBot_mecanum_ws/install/setup.bash
-        cd /home/ubuntu/ROS2_rUBot_mecanum_ws
+        source /home/ubuntu/my_rUBot_mecanum/install/setup.bash
+        cd /home/ubuntu/my_rUBot_mecanum
         export ROS_DOMAIN_ID=1
         export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
         export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
-        export ROS_STATIC_PEERS="192.168.1.55"   # PC IP
-        export CYCLONEDDS_URI=file:///home/ubuntu/cyclonedds.xml
+        export ROS_STATIC_PEERS="192.168.1.51"   # PC IP
+        export CYCLONEDDS_URI=file:///home/ubuntu/my_rUBot_mecanum/network_config/humble/config/cyclonedds_robot.xml
         ````
+        > write the proper workspace path, in robot case `/home/ubuntu/my_rUBot_mecanum`
 
 ## 3. ROS2 environment on Linux DualBoot PC based on Docker containers
 
@@ -202,8 +200,8 @@ A proper Docker Image has been created with the custom configuration on Dockerfi
 - Unzip the `ros2-humble-biorobub.zip` file in a `~/Desktop/rob` folder on Linux PC
 - review on:
     - `docker-compose.yml` file: `ROS_DOMAIN_ID` variable to match your robot.
-    - `cyclonedds_pc.xml` file: IPs to match your PC and robot.
-    - `cyclonedds_robot.xml` file: IPs to match your robot and PC.
+    - `cyclonedds_pc.xml` file: verify `<NetworkInterface name="wlp1s0"/>`.
+    - `cyclonedds_robot.xml` file: verify `<NetworkInterface name="wlan0"/>`.
 - Open a terminal in the `~/Desktop/rob/ros2-humble-biorobub` folder and run:
     ````bash
     xhost +local:root            # allow X11 for graphs in container
@@ -215,16 +213,23 @@ A proper Docker Image has been created with the custom configuration on Dockerfi
     ````
 - Open `.bashrc` file inside the container and verify it contains:
     ````bash
+    # --- ROS 2 base ---
     source /opt/ros/humble/setup.bash
     source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
-    source ~/Desktop/ROS2_rUBot_mecanum_ws/install/setup.bash
-    cd ~/Desktop/ROS2_rUBot_mecanum_ws
-    export GAZEBO_MODEL_PATH=~/Desktop/ROS2_rUBot_mecanum_ws/src/my_robot_bringup/models:$GAZEBO_MODEL_PATH
-    export QT_QPA_PLATFORM=xcb           # Best for RVIZ2
-    export ROS_DOMAIN_ID=1               # group/domain ID
-    export ROS_LOCALHOST_ONLY=0          # allow communication with other machines
+    # --- Your workspace ---
+    source /root/my_rUBot_mecanum/install/setup.bash
+    cd ~/Desktop/my_rUBot_mecanum
+    # --- Gazebo / RViz usability ---
+    export GAZEBO_MODEL_PATH=/root/my_rUBot_mecanum/src/my_robot_bringup/models:${GAZEBO_MODEL_PATH}
+    export QT_QPA_PLATFORM=xcb  # good default for RViz2 on many systems
+    # --- ROS 2 networking ---
+    export ROS_DOMAIN_ID=1 # PC-robot pair number 1
     export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-    export CYCLONEDDS_URI=file:///home/student/Desktop/ROS2_rUBot_mecanum_ws/network_config/cyclonedds_pc.xml
+    # robust hotspot mode (recommended)
+    export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
+    export ROS_STATIC_PEERS="192.168.1.41"   # robot IP
+    # CycloneDDS XML (interface binding, peers, etc.)
+    export CYCLONEDDS_URI=file:///root/my_rUBot_mecanum/network_config/humble/config/cyclonedds_pc.xml
     ````
 
 - To stop the container:
