@@ -9,6 +9,34 @@ FROM theconstructai/limo:humble-v3
 
 SHELL ["/bin/bash", "-c"]
 
+# --- Fix expired ROS apt key in base image (Open Robotics) ---
+RUN set -eux; \
+    # Temporarily disable ROS repo to allow apt update
+    if [ -f /etc/apt/sources.list.d/ros2.list ]; then \
+      mv /etc/apt/sources.list.d/ros2.list /etc/apt/sources.list.d/ros2.list.disabled; \
+    fi; \
+    if [ -f /etc/apt/sources.list.d/ros2-latest.list ]; then \
+      mv /etc/apt/sources.list.d/ros2-latest.list /etc/apt/sources.list.d/ros2-latest.list.disabled; \
+    fi; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends ca-certificates curl gnupg; \
+    rm -rf /var/lib/apt/lists/*; \
+    \
+    # Install new ROS keyring
+    mkdir -p /etc/apt/keyrings; \
+    curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+      | gpg --dearmor -o /etc/apt/keyrings/ros-archive-keyring.gpg; \
+    \
+    # Re-create ROS2 repo entry using signed-by keyring
+    . /etc/os-release; \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu ${UBUNTU_CODENAME} main" \
+      > /etc/apt/sources.list.d/ros2.list; \
+    \
+    # Now update with ROS repo enabled
+    apt-get update; \
+    rm -rf /var/lib/apt/lists/*
+
+
 # -----------------------------
 # 1) System dependencies
 # -----------------------------
@@ -43,15 +71,15 @@ RUN apt-get update && apt-get install -y \
     iputils-ping \
     python3-serial \
     \
+    # Camera 3D plugins
+    ros-humble-image-transport \
+    ros-humble-image-transport-plugins \
+    ros-humble-compressed-image-transport \
+    \
     # ROS 2 add-ons (keep if you really need them)
     ros-humble-rviz2 \
     ros-humble-joint-state-publisher \
-    ros-humble-joint-state-publisher-gui \
-    ros-humble-gazebo-plugins \
-    ros-humble-nav2-bringup \
-    ros-humble-nav2-simple-commander \
     ros-humble-tf-transformations \
-    ros-humble-cartographer-ros \
     ros-humble-teleop-twist-keyboard \
     ros-humble-rmw-cyclonedds-cpp \
     ros-humble-rosbridge-server \
@@ -61,53 +89,10 @@ RUN apt-get update && apt-get install -y \
 RUN rosdep init || true && rosdep update
 
 # -----------------------------
-# 2) Your workspace + Orbbec ROS2 wrapper
-# -----------------------------
-WORKDIR /root
-RUN git clone https://github.com/manelpuig/my_rUBot_mecanum.git
-
-# Clone Orbbec wrapper into the same ws
-WORKDIR /root/my_rUBot_mecanum/src
-RUN git clone --branch main https://github.com/orbbec/OrbbecSDK_ROS2.git
-
-# Install deps + build once
-WORKDIR /root/my_rUBot_mecanum
-RUN source /opt/ros/humble/setup.bash && \
-    rosdep install --from-paths src --ignore-src -r -y && \
-    colcon build
-
-# -----------------------------
-# 3) OrbbecViewer SDK (zip -> /root/orbbec_sdk)
-# -----------------------------
-ARG ORBBEC_VIEWER_ZIP=OrbbecViewer_v1.10.27_202509260950_arm64_release.zip
-
-WORKDIR /root
-RUN mkdir -p /root/orbbec_sdk
-
-# Copy zip file into image, extract, then remove zip to save space
-COPY ${ORBBEC_VIEWER_ZIP} /tmp/orbbec_viewer.zip
-
-RUN unzip -q /tmp/orbbec_viewer.zip -d /tmp/orbbec_unzipped && \
-    # Copy the *contents* of the extracted folder into /root/orbbec_sdk
-    # (handles cases where zip contains a top-level directory)
-    if [ -d "/tmp/orbbec_unzipped/OrbbecViewer_v1.10.27_202509260950_arm64_release" ]; then \
-      cp -r /tmp/orbbec_unzipped/OrbbecViewer_v1.10.27_202509260950_arm64_release/* /root/orbbec_sdk/ ; \
-    else \
-      cp -r /tmp/orbbec_unzipped/* /root/orbbec_sdk/ ; \
-    fi && \
-    rm -rf /tmp/orbbec_unzipped /tmp/orbbec_viewer.zip
-
-# Do NOT install udev rules here: do it on the Jetson host.
-# Just ensure script is executable (if present).
-RUN if [ -f "/root/orbbec_sdk/script/install_udev_rules.sh" ]; then \
-      chmod +x /root/orbbec_sdk/script/install_udev_rules.sh ; \
-    fi
-
-# -----------------------------
-# 4) Environment setup (.bashrc)
+# Environment setup (.bashrc)
 # -----------------------------
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
-    echo "source /root/my_rUBot_mecanum/install/setup.bash" >> /root/.bashrc && \
-    echo "export ORBBEC_SDK_HOME=/root/orbbec_sdk" >> /root/.bashrc
+    echo "source /root/agilex_ws/install/setup.bash" >> /root/.bashrc && \
+    echo "cd agilex_ws" >> /root/.bashrc
 
 CMD ["/bin/bash"]

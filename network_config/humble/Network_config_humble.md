@@ -150,6 +150,7 @@ We will:
         ````shell
         ip -br link
         ip -br addr
+        ip a
         ````
 
 - Update `.bashrc` to use these configs

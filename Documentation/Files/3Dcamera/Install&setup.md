@@ -124,7 +124,7 @@ Best cameras:
 
 ## Raspberrypi4 Ubuntu 22 with ROS2 Humble
 
-Download the SDK driver for ARM64 from Orbbec site: 
+Optionally download the SDK driver for ARM64 from Orbbec site: 
 - https://github.com/orbbec/OrbbecSDK/releases
 
 - Copy the contents of SDK driver on home custom folder:
@@ -144,6 +144,15 @@ chmod +x install_udev_rules.sh
 sudo ./install_udev_rules.sh
 ```
 
+Install some needed packages:
+```shell
+apt update
+apt install -y \
+  ros-humble-image-transport \
+  ros-humble-image-transport-plugins \
+  ros-humble-compressed-image-transport
+
+```
 Install from source the ROS2 wrapper: https://github.com/orbbec/OrbbecSDK_ROS2.git
 - Install ROS2 wrapper as in PC Ubuntu 22 section and launch with:
 ```bash
