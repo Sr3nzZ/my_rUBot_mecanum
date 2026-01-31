@@ -31,21 +31,23 @@ Webgraphy:
 
 ## **1. Setup the robot project in virtual environment for simulation**
 
-For **simulation** we will use TheConstruct interface. When working in Laboratory groups, we suggest you:
+For **simulation** we will use TheConstruct interface or your own PC-Ubuntu22. When working in Laboratory groups, we suggest you:
 - One student plays the role of `Director`. This student makes a "Fork" of the Professor's github project.
 - The `Director` accept the other students as `Collaborators`
 ![](./Images/01_Setup/github_collaborators.png)
 - Then the `Collaborators` will make a "fork" of the `Director`'s github project.
 - The `Collaborators` will be able to update the github `Director`'s project and participate on the project generation
 
-To work on the project (during lab sessions or for homework), each student has to clone the `Director`'s github project in the `TheConstruct working environment`.
+To work on the project (during lab sessions or for homework), each student has to clone the `Director`'s github project in his `working environment` (TheConstruct interface or your own PC-Ubuntu22).
+
+In the case of **TheConstruct interface** environment:
 - Open your ROS2 Humble environment:  https://app.theconstructsim.com/
 - Open your created ROS2_Humble Rosject project
 - First time, clone your forked `Director`'s github project
   ```shell
   cd /home/user
-  git clone https://github.com/director_username/ROS2_rUBot_mecanum_ws
-  cd ROS2_rUBot_mecanum_ws
+  git clone https://github.com/director_username/my_rUBot_mecanum
+  cd my_rUBot_mecanum
   colcon build
   ```
   >Successives times, in TheConstruct simulation environment, you can update the project with:
@@ -56,10 +58,10 @@ To work on the project (during lab sessions or for homework), each student has t
   ````shell
   source /opt/ros/humble/setup.bash
   source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
-  source /home/user/ROS2_rUBot_mecanum_ws/install/setup.bash
-  cd /home/user/ROS2_rUBot_mecanum_ws
+  source /home/user/my_rUBot_mecanum/install/setup.bash
+  cd /home/user/my_rUBot_mecanum
   export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-  export GAZEBO_MODEL_PATH=/home/user/ROS2_rUBot_mecanum_ws/src/my_robot_bringup/models:$GAZEBO_MODEL_PATH
+  export GAZEBO_MODEL_PATH=/home/user/my_rUBot_mecanum/src/my_robot_bringup/models:$GAZEBO_MODEL_PATH
   
   #git config --global user.email "xxx@alumnes.ub.edu"
   #git config --global user.name "your_github_username"
@@ -90,67 +92,67 @@ The setup process is based on a custom Ubuntu22.04 with the ROS2 Humble environm
 A speciffic installation is made for the UB custom rUBot model prototypes.
 
 
-**rUBot mecanum** custom made robot is based on:
-- Raspberrypi4 computer onboard
-- Custom ROS2 configuration in Ubuntu22.04 server 64bits.
-
-When you power the rUBot mecanum robot:
+**rUBot mecanum** custom made robot contains a raspberrypi4 with custom ROS2 configuration in Ubuntu22.04 server 64bits. When you power-on the rUBot:
 - it connects to the wifi `local network: Robotics_UB` with a specific IP address (192.168.1.x4)
 - launch the bringup and control nodes automatically
 - launch Rosbridge and web servers to properly control the robot from a mobile phone/remote computer
 
-Students will control the robot from their **PC-computers** (Linux/ubuntu) connected to the same wifi network `Robotics_UB`. 
-- Each computer has a specific IP address assigned (192.168.1.x5).
-- Unzip the `ros2-humble-biorobub.zip` file in a `~/Desktop/rob` folder on Linux PC
-- review on:
-    - `docker-compose.yml` file: `ROS_DOMAIN_ID` variable to match your robot.
-    - `cyclonedds_pc.xml` file: IPs to match your PC and robot.
-    - `cyclonedds_robot.xml` file: IPs to match your robot and PC.
-- Open a terminal in the `~/Desktop/rob/ros2-humble-biorobub` folder and run:
-    ````bash
-    xhost +local:root            # allow X11 for graphs in container
-    cd ~/Desktop/ros2-humble-biorobub
-    docker-compose up -d
-    docker exec -it pc_humble bash
-    code .                     # open VSCode inside the container
-- From your computer, open a terminal on /home/Desktop and clone the Director's github project:
+Robot control will be made from student's **PC-computer** (Linux/ubuntu) connected to the same wifi network `Robotics_UB`. Each computer will have a specific IP address assigned (192.168.1.x5).
+
+**PC-Ubuntu22:** will make the rUBot control across the local network. 
+
+If you have not Ubuntu22.04, you will have to work on a [ROS2 environment on UB custom Docker container](https://github.com/manelpuig/my_rUBot_mecanum/blob/humble/network_config/humble/Network_config_humble.md) - section 4. 
+
+If you have Ubuntu22.04, follow instructions:
+- install ROS2 Humble from the official documentation (https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html)
+- Clone the director's repository:
   ````shell
   cd /home/Desktop
-  git clone https://github.com/director_github_user/ROS2_rUBot_mecanum_ws.git
-  cd ROS2_rUBot_mecanum_ws
+  git clone https://github.com/director_github_user/my_rUBot_mecanum.git
+  cd my_rUBot_mecanum
   colcon build
   ````
-- Open `.bashrc` file inside the container and verify it contains:
+- Verify the NetworkInterface, type:
+    ````shell
+    ip -br link
+    ip -br addr
+    ip a
+    ````
+    > Usually `wlp1s0`
+- Verify the file `cyclonedds_pc.xml` contains the proper NetworkInterface
+- Open `.bashrc` file and verify it contains:
     ````bash
+    # --- ROS 2 base ---
     source /opt/ros/humble/setup.bash
     source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
-    source ~/Desktop/ROS2_rUBot_mecanum_ws/install/setup.bash
-    cd ~/Desktop/ROS2_rUBot_mecanum_ws
-    export GAZEBO_MODEL_PATH=~/Desktop/ROS2_rUBot_mecanum_ws/src/my_robot_bringup/models:$GAZEBO_MODEL_PATH
-    export QT_QPA_PLATFORM=xcb           # Best for RVIZ2
-    export ROS_DOMAIN_ID=1               # group/domain ID
-    export ROS_LOCALHOST_ONLY=0          # allow communication with other machines
+    # --- Your workspace ---
+    source /home/Desktop/my_rUBot_mecanum/install/setup.bash
+    cd ~/Desktop/my_rUBot_mecanum
+    # --- Gazebo / RViz usability ---
+    export GAZEBO_MODEL_PATH=/home/Desktop/my_rUBot_mecanum/src/my_robot_bringup/models:${GAZEBO_MODEL_PATH}
+    export QT_QPA_PLATFORM=xcb  # good default for RViz2 on many systems
+    # --- ROS 2 networking ---
+    export ROS_DOMAIN_ID=1 # PC-robot pair number 1
     export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-    export CYCLONEDDS_URI=file:///home/student/Desktop/ROS2_rUBot_mecanum_ws/network_config/cyclonedds_pc.xml
+    export ROS_LOCALHOST_ONLY=0
+    # robust hotspot mode (recommended)
+    export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF #SUBNET # When Multicast
+    export ROS_STATIC_PEERS="192.168.1.14"   # robot IP
+    # CycloneDDS XML (interface binding, peers, etc.)
+    export CYCLONEDDS_URI=file:///home/Desktop/my_rUBot_mecanum/network_config/humble/config/cyclonedds_pc.xml
     ````
-    > Modify the `ROS_DOMAIN_ID` correspondingly to your robot.
+    > Modify the path `/home/Desktop/` from your PC
+
+    > Modify `ROS_DOMAIN_ID` corresponding to your group.
+
+    > Modify `ROS_STATIC_PEERS` correspondingly to your robot IP.
+
 - Open a new terminal and verify you see the 5 main nodes running on your robot:
   ````shell
   ros2 node list
   ````
 
-  If the 5 main nodes are running, you are ready to control the robot.
-
-Before power off the computer, remember to stop the docker container:
-- To stop the container:
-    ````bash
-    docker-compose down
-    ````
-- To see the Images and Containers:
-    ````bash
-    docker ps -a               # containers
-    docker images              # images
-    ````
+If the 5 main nodes are running, you are ready to control the robot.
 
 ## **3. Update and syncronize the repository project**
 
@@ -167,7 +169,7 @@ When working in Laboratory groups, we suggest you:
   git commit -m "Message"
   git push
   ````
-- You will have to insert your PAT (Personal Access Token) you have generated
+- You will have to insert your github credentials or your PAT (Personal Access Token) you have generated
 - The `Director`'s github repository has been updated!
 
 To obtain the **PAT** in github follow the instructions:

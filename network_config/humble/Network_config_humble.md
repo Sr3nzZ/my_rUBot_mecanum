@@ -28,7 +28,7 @@ Both machines are connected to the same WiFi router and are in the same Layer-2 
 The Ubuntu22.04 installations is performed, either with:
 - PC Ubuntu22.04 with ROS2 Humble installed.
 - External SSD USB Disc with Ubuntu 22.04 and ROS2 Humble installed.
-- or Docker container (on PC Unix) with ROS2 Humble installed.
+- Docker container (on PC Unix) with ROS2 Humble installed.
 
 In each case the communicacion is ensured by a proper DDS (Data Distribution Service) configuration.
 
@@ -70,7 +70,7 @@ Typical weaknesses
 
 It can be selected with an environment variable:
 ````shell
-export RMW_IMPLEMENTATION=rmw_fastrtps_cpp     # Fast DDS (eProsima)
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ````
 
 ### 2.2. Cyclone DDS (rmw_cyclonedds_cpp)
@@ -91,7 +91,7 @@ Typical weaknesses
 
 It can be selected with an environment variable:
 ````shell
-export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp     # Fast DDS (eProsima)
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ````
 
 ## 3. Laboratory network configuration
@@ -169,9 +169,10 @@ We will:
         # --- ROS 2 networking ---
         export ROS_DOMAIN_ID=1 # PC-robot pair number 1
         export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+        export ROS_LOCALHOST_ONLY=0
         # robust hotspot mode (recommended)
-        export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
-        export ROS_STATIC_PEERS="192.168.1.41"   # robot IP
+        export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF #SUBNET # When Multicast
+        export ROS_STATIC_PEERS="192.168.1.14"   # robot IP
         # CycloneDDS XML (interface binding, peers, etc.)
         export CYCLONEDDS_URI=file:///home/Desktop/my_rUBot_mecanum/network_config/humble/config/cyclonedds_pc.xml
         ````
@@ -185,28 +186,29 @@ We will:
         cd /home/ubuntu/my_rUBot_mecanum
         export ROS_DOMAIN_ID=1
         export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-        export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
-        export ROS_STATIC_PEERS="192.168.1.51"   # PC IP
+        export ROS_LOCALHOST_ONLY=0
+        export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF #SUBNET # When Multicast
+        export ROS_STATIC_PEERS="192.168.1.15"   # PC IP
         export CYCLONEDDS_URI=file:///home/ubuntu/my_rUBot_mecanum/network_config/humble/config/cyclonedds_robot.xml
         ````
         > write the proper workspace path, in robot case `/home/ubuntu/my_rUBot_mecanum`
 
-## 3. ROS2 environment on Linux DualBoot PC based on Docker containers
+## 4. ROS2 environment on UB custom Docker container
 
 Computers with DualBoot (Windows-Linux) we need to use a Docker based setup to run ROS2 Humble.
 
 A proper Docker Image has been created with the custom configuration on Dockerfile and uploaded to my DockerHub account (https://hub.docker.com/r/manelpuig/ros2-humble-biorobub-pc).
 
 **Students** in the lab they only need to:
-- Unzip the `ros2-humble-biorobub.zip` file in a `~/Desktop/rob` folder on Linux PC
+- Copy the contents of `my_rUBot_mecanum/network_config/humble/` in a `~/Desktop/rob` folder on Linux PC
 - review on:
     - `docker-compose.yml` file: `ROS_DOMAIN_ID` variable to match your robot.
     - `cyclonedds_pc.xml` file: verify `<NetworkInterface name="wlp1s0"/>`.
     - `cyclonedds_robot.xml` file: verify `<NetworkInterface name="wlan0"/>`.
-- Open a terminal in the `~/Desktop/rob/ros2-humble-biorobub` folder and run:
+- Open a terminal in the `~/Desktop/rob/` folder and run:
     ````bash
     xhost +local:root            # allow X11 for graphs in container
-    cd ~/Desktop/ros2-humble-biorobub
+    cd ~/Desktop/rob
     docker-compose up -d
     docker exec -it pc_humble bash
     code .                     # open VSCode inside the container
@@ -226,9 +228,10 @@ A proper Docker Image has been created with the custom configuration on Dockerfi
     # --- ROS 2 networking ---
     export ROS_DOMAIN_ID=1 # PC-robot pair number 1
     export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+    export ROS_LOCALHOST_ONLY=0
     # robust hotspot mode (recommended)
     export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
-    export ROS_STATIC_PEERS="192.168.1.41"   # robot IP
+    export ROS_STATIC_PEERS="192.168.1.14"   # robot IP
     # CycloneDDS XML (interface binding, peers, etc.)
     export CYCLONEDDS_URI=file:///root/my_rUBot_mecanum/network_config/humble/config/cyclonedds_pc.xml
     ````

@@ -18,7 +18,7 @@ services:
       - QT_X11_NO_MITSHM=1
       - LIBGL_ALWAYS_SOFTWARE=1
       - MESA_GL_VERSION_OVERRIDE=2.1
-      - CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml
+
     volumes:
       # Entry point script
       - ./entrypoint.pc.sh:/entrypoint.pc.sh:ro
@@ -31,7 +31,6 @@ services:
       - /dev/snd:/dev/snd
       # CycloneDDS configuration (PC side)
       - ./config:/config:ro
-      # Optional: mount your ROS 2 workspace inside the container
-      # - ./pc_ws:/root/pc_ws
+
     entrypoint: /entrypoint.pc.sh
     command: sleep infinity
