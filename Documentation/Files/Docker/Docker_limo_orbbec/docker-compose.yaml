@@ -1,40 +1,53 @@
-name: limo_humble_orbbec_project
+name: limo_humble_orbbec
 
 services:
-  limo-humble-orbbec-container:
-    image: manelpuig/ros2-humble-limo-ub:latest
+  limo-humble-container:
     pull_policy: always
+    image: manelpuig/ros2-humble-limo-ub:latest
     container_name: limo-humble-orbbec-container
 
     privileged: true
     network_mode: host
-    restart: always
 
     environment:
-      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=1
       - ROS_LOCALHOST_ONLY=0
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
-      # X11 (needed for OrbbecViewer)
-      - DISPLAY=${DISPLAY}
+      # X11 (si vols obrir viewers/rviz des del container)
       - QT_X11_NO_MITSHM=1
-
-      # Optional fallbacks (enable only if needed)
-      # - LIBGL_ALWAYS_SOFTWARE=1
-      # - MESA_GL_VERSION_OVERRIDE=2.1
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - MESA_GL_VERSION_OVERRIDE=2.1
+      - XDG_RUNTIME_DIR=/tmp/runtime-root
 
     volumes:
       # X11 socket
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
 
-      # If you really want full device exposure (already implied by privileged)
+      # Perquè el container “vegi” els mateixos permisos/grups que el host (molt útil)
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+
+      # UDEV rules del host (no és estrictament necessari si ja estan aplicades,
+      # però és útil per diagnòstic i coherència)
+      - /etc/udev/rules.d:/etc/udev/rules.d:ro
+
+      # USB bus i V4L2 (això és el que realment cal per Orbbec + /dev/video*)
+      - /dev/bus/usb:/dev/bus/usb
       - /dev:/dev
 
-      # Your overrides (see note below about install/)
-      - ./limo_base.launch.py:/root/my_rUBot_mecanum/install/limo_base/share/limo_base/launch/limo_base.launch.py:ro
-      - ./limo_start.launch.py:/root/my_rUBot_mecanum/install/limo_bringup/share/limo_bringup/launch/humble/limo_start.launch.py:ro
+      # (Opcional) si vols sobreescriure launch files del bringup
+      # millor muntar-los com a ro perquè no els “trossegi” el container
+      - ./limo_base.launch.py:/root/agilex_ws/install/limo_base/share/limo_base/launch/limo_base.launch.py:ro
+      - ./limo_start.launch.py:/root/agilex_ws/install/limo_bringup/share/limo_bringup/launch/humble/limo_start.launch.py:ro
 
-      - ./limo_entrypoint.sh:/limo_entrypoint.sh:ro
+      # Entrypoint teu
+      - ./limo_entrypoint.sh:/limo_entrypoint.sh
+    entrypoint: /limo_entrypoint.sh
 
-    entrypoint: ["/bin/bash", "/limo_entrypoint.sh"]
-    command: ["ros2", "launch", "limo_bringup", "limo_start.launch.py"]
+    restart: always
+
+    command: ["sleep", "infinity"]
+
+    # When executing a bringup instruction, change to
+    #command: ["ros2", "launch", "limo_bringup", "limo_start.launch.py"]
