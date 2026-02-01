@@ -1,4 +1,4 @@
-FROM theconstructai/limo:humble-v3
+FROM manelpuig/ros2-humble-limo-base:theconstruct
 
 SHELL ["/bin/bash", "-c"]
 
