@@ -30,6 +30,8 @@ setup(
             'rubot_detection_yolo_exec = my_robot_ai_identification.rubot_detection_yolo:main',
             'rubot_targets_yolo_exec = my_robot_ai_identification.rubot_targets_yolo:main',
             'yolo_prediction_exec = my_robot_ai_identification.yolo_prediction_sw:main',
+            'yolo_prediction_node = my_robot_ai_identification.yolo_prediction_node:main',
+            'yolo_prediction_node_compressed = my_robot_ai_identification.yolo_prediction_node_compressed:main',
         ],
     },
 )
