@@ -97,7 +97,9 @@ A speciffic installation is made for the UB custom rUBot model prototypes.
 - launch the bringup and control nodes automatically
 - launch Rosbridge and web servers to properly control the robot from a mobile phone/remote computer
 
-Robot control will be made from student's **PC-computer** (Linux/ubuntu) connected to the same wifi network `Robotics_UB`. Each computer will have a specific IP address assigned (192.168.1.x5).
+Robot control will be made from student's **PC-computer** (Linux/ubuntu) connected to the same wifi network `Robotics_UB`. Each computer will have a specific IP address assigned:
+- In Physics Faculty Lab: 192.168.1.x5 (x=1,2,3,4 corresponding to group number)
+- In Mathematics and Informatics Faculty Lab: 192.168.1.x6 (x=1,2,3,4 corresponding to group number)
 
 **PC-Ubuntu22:** will make the rUBot control across the local network. 
 
@@ -107,7 +109,7 @@ If you have Ubuntu22.04, follow instructions:
 - install ROS2 Humble from the official documentation (https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html)
 - Clone the director's repository:
   ````shell
-  cd /home/Desktop
+  cd /home/<your_user>/Desktop
   git clone https://github.com/director_github_user/my_rUBot_mecanum.git
   cd my_rUBot_mecanum
   colcon build
@@ -126,22 +128,22 @@ If you have Ubuntu22.04, follow instructions:
     source /opt/ros/humble/setup.bash
     source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
     # --- Your workspace ---
-    source /home/Desktop/my_rUBot_mecanum/install/setup.bash
+    source /home/<your_user>/Desktop/my_rUBot_mecanum/install/setup.bash
     cd ~/Desktop/my_rUBot_mecanum
     # --- Gazebo / RViz usability ---
-    export GAZEBO_MODEL_PATH=/home/Desktop/my_rUBot_mecanum/src/my_robot_bringup/models:${GAZEBO_MODEL_PATH}
+    export GAZEBO_MODEL_PATH=/home/<your_user>/Desktop/my_rUBot_mecanum/src/my_robot_bringup/models:${GAZEBO_MODEL_PATH}
     export QT_QPA_PLATFORM=xcb  # good default for RViz2 on many systems
     # --- ROS 2 networking ---
-    export ROS_DOMAIN_ID=1 # PC-robot pair number 1
+    export ROS_DOMAIN_ID=1 # Group number 1
     export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
     export ROS_LOCALHOST_ONLY=0
     # robust hotspot mode (recommended)
-    export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF #SUBNET # When Multicast
-    export ROS_STATIC_PEERS="192.168.1.14"   # robot IP
+    export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF 
+    export ROS_STATIC_PEERS=192.168.1.14  # robot IP (14,24,34 or 44)
     # CycloneDDS XML (interface binding, peers, etc.)
-    export CYCLONEDDS_URI=file:///home/Desktop/my_rUBot_mecanum/network_config/humble/config/cyclonedds_pc.xml
+    export CYCLONEDDS_URI=file:///home/<your_user>/Desktop/my_rUBot_mecanum/network_config/humble/cyclonedds_pc.xml
     ````
-    > Modify the path `/home/Desktop/` from your PC
+    > Modify the path `/home/<your_user>/Desktop/` from your PC with <your_user> name
 
     > Modify `ROS_DOMAIN_ID` corresponding to your group.
 
