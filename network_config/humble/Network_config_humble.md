@@ -185,6 +185,7 @@ Computers with DualBoot (Windows-Linux) we need to use a Docker based setup to r
 A proper Docker Image has been created with the custom configuration on Dockerfile and uploaded to my DockerHub account (https://hub.docker.com/r/manelpuig/ros2-humble-biorobub-pc).
 
 **Students** in the lab they only need to:
+- Verify you have `Docker Engine` and `Docker Compose plugin` from the official Docker repositories.
 - Copy the contents of `my_rUBot_mecanum/network_config/humble/` in a `~/Desktop/rob` folder on Linux PC
 - review on:
     - `docker-compose.yaml` file: 
@@ -196,7 +197,7 @@ A proper Docker Image has been created with the custom configuration on Dockerfi
     ````bash
     xhost +local:root            # allow X11 for Docker (lab use only)
     cd ~/Desktop/rob
-    docker-compose up -d
+    docker compose up -d
     docker exec -it pc_humble bash
     code .                     # open VSCode inside the container
     ros2 topic list
@@ -205,7 +206,7 @@ A proper Docker Image has been created with the custom configuration on Dockerfi
 
 - To stop the container:
     ````bash
-    docker-compose down
+    docker compose down
     ````
 - To see the Images and Containers:
     ````bash
