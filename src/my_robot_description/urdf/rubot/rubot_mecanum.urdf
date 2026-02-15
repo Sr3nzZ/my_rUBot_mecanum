@@ -154,7 +154,7 @@
       <inertia ixx="0.000166" ixy="0" ixz="0" iyy="0.000303" iyz="0" izz="0.000166"/>
     </inertial>
   </link> 
-<!-- 2D Camera as a mesh of actual PiCamera -->
+<!-- 2D Camera as a mesh of actual PiCamera
   <joint name="joint_camera" type="fixed">
     <origin rpy="0 0 0" xyz="0.130 0.0 0.05"/>
     <parent link="base_link"/>
@@ -180,8 +180,52 @@
       <mass value="0.01"/>
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
     </inertial>
-  </link>
+  </link> -->
   <!-- LIDAR base_scan -->
+  <!-- 3D Camera Orbbec Dabai -->
+  <gazebo reference="camera">
+  <sensor name="rgbd_camera" type="depth">
+    <always_on>true</always_on>
+    <update_rate>30.0</update_rate>
+
+    <camera>
+      <horizontal_fov>1.047</horizontal_fov>
+      <image>
+        <width>640</width>
+        <height>480</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.1</near>
+        <far>5.0</far>
+      </clip>
+    </camera>
+
+    <plugin name="rgbd_camera_controller"
+            filename="libgazebo_ros_depth_camera.so">
+
+      <alwaysOn>true</alwaysOn>
+      <updateRate>30.0</updateRate>
+
+      <!-- Namespace opcional -->
+      <robotNamespace>/camera1</robotNamespace>
+
+      <!-- IMPORTANT: ha de coincidir amb el link -->
+      <frameName>camera</frameName>
+
+      <!-- RGB -->
+      <imageTopicName>image_raw</imageTopicName>
+      <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+
+      <!-- DEPTH -->
+      <depthImageTopicName>depth/image_raw</depthImageTopicName>
+
+      <!-- PointCloud -->
+      <pointCloudTopicName>points</pointCloudTopicName>
+    </plugin>
+  </sensor>
+</gazebo>
+
   <link name="base_scan">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
