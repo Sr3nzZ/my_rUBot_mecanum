@@ -146,22 +146,20 @@ We will:
         source /opt/ros/humble/setup.bash
         source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
         # --- Your workspace ---
-        source /home/Desktop/my_rUBot_mecanum/install/setup.bash
+        source /home/student/Desktop/my_rUBot_mecanum/install/setup.bash
         cd ~/Desktop/my_rUBot_mecanum
-        # --- Gazebo / RViz usability ---
-        export GAZEBO_MODEL_PATH=/home/Desktop/my_rUBot_mecanum/src/my_robot_bringup/models:${GAZEBO_MODEL_PATH}
         export QT_QPA_PLATFORM=xcb  # good default for RViz2 on many systems
         # --- ROS 2 networking ---
         export ROS_DOMAIN_ID=1 # Group number 1
         export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-        export ROS_LOCALHOST_ONLY=0
-        # robust hotspot mode (recommended)
+        # Sim mode SUBNET / Lab mode OFF
         export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
+        # Sim mode unset / Lab mode robot IP
         export ROS_STATIC_PEERS=192.168.1.14  # robot IP (14,24,34 or 44)
-        # CycloneDDS XML (interface binding, peers, etc.)
-        export CYCLONEDDS_URI=file:///home/Desktop/my_rUBot_mecanum/network_config/humble/cyclonedds_pc.xml
+        # CycloneDDS XML. Not necessary
+        #export CYCLONEDDS_URI=file:///home/Desktop/my_rUBot_mecanum/network_config/humble/cyclonedds_pc.xml
         ````
-        > write the proper workspace path, in PC case `/home/Desktop/my_rUBot_mecanum`
+        > write the proper workspace path, in PC case `/home/student/Desktop/my_rUBot_mecanum`
     - On the robot:
 
         ````bash
@@ -171,56 +169,17 @@ We will:
         cd /home/ubuntu/my_rUBot_mecanum
         export ROS_DOMAIN_ID=1
         export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-        export ROS_LOCALHOST_ONLY=0
-        export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF #SUBNET # When Multicast
-        export ROS_STATIC_PEERS=192.168.1.15,192.168.1.16  # PC IP at FacFIS o FacINFORMATICS
-        export CYCLONEDDS_URI=file:///home/ubuntu/my_rUBot_mecanum/network_config/humble/cyclonedds_robot.xml
+        export ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
+        export ROS_STATIC_PEERS=192.168.1.15,192.168.1.16  # PC IP at FacFIS,FacINFORMATICS
+        #export CYCLONEDDS_URI=file:///home/ubuntu/my_rUBot_mecanum/network_config/humble/cyclonedds_robot.xml
         ````
         > write the proper workspace path, in robot case `/home/ubuntu/my_rUBot_mecanum`
 
-## 4. ROS2 environment on UB custom Docker container
+You are ready to work with ROS2 Humble and control your rUBot!
 
-Computers with DualBoot (Windows-Linux) we need to use a Docker based setup to run ROS2 Humble.
-
-A proper Docker Image has been created with the custom configuration on Dockerfile and uploaded to my DockerHub account (https://hub.docker.com/r/manelpuig/ros2-humble-biorobub-pc).
-
-**Students** in the lab they only need to:
-- Verify you have `Docker Engine` and `Docker Compose plugin` from the official Docker repositories.
-- Copy the contents of `my_rUBot_mecanum/network_config/humble/` in a `~/Desktop/rob` folder on Linux PC
-- review on:
-    - `docker-compose.yaml` file: 
-        - `ROS_DOMAIN_ID=1` variable to match your Group number.
-        - `ROS_STATIC_PEERS=192.168.1.14` variable to match your robot ID.
-    - `cyclonedds_pc.xml` file: verify `<NetworkInterface name="wlp1s0"/>`.
-    - `cyclonedds_robot.xml` file: verify `<NetworkInterface name="wlan0"/>`.
-- Open a terminal in the `~/Desktop/rob/` folder and run:
-    ````bash
-    xhost +local:root            # allow X11 for Docker (lab use only)
-    cd ~/Desktop/rob
-    docker compose up -d
-    docker exec -it pc_humble bash
-    code .                     # open VSCode inside the container
-    ros2 topic list
-    ````
-- Verify the environment variables are correctly set by checking the container startup output.
-
-- To stop the container:
-    ````bash
-    docker compose down
-    ````
-- To see the Images and Containers:
-    ````bash
-    docker ps -a               # containers
-    docker images              # images
-    ````
-
-You are ready to work with ROS2 Humble on Docker!
-
-### Quick checklist if communication does not work
+**Quick checklist if communication does not work**
 
 - PC and robot use the same ROS_DOMAIN_ID
-- `ROS_STATIC_PEERS` contains the correct IP of the other machine
-- `ROS_AUTOMATIC_DISCOVERY_RANGE=OFF` is set on both sides
+- ROS_AUTOMATIC_DISCOVERY_RANGE=OFF is set on both sides
+- ROS_STATIC_PEERS contains the correct IP of the other machine
 - Correct NetworkInterface is set in cyclonedds_*.xml
-- PC container is started with `network_mode: host`
-
