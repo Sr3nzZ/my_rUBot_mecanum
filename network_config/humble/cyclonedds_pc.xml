@@ -2,26 +2,23 @@
 <CycloneDDS xmlns="https://cdds.io/config">
   <Domain id="any">
     <General>
-      <!--
-        Let CycloneDDS automatically select the best available local interface.
-        This works on:
-          - Docker containers (eth0, 172.x.x.x)
-          - PCs with WiFi/Ethernet
-          - Laptops switching networks
-      -->
+
+      <!-- Fixem explícitament la IP del PC -->
       <Interfaces>
-        <NetworkInterface name="wlp1s0"/>
+        <NetworkInterface address="192.168.1.6"/>
       </Interfaces>
-      <!--
-        Increase max message size for point clouds, images, maps, etc.
-        (Default is often too small for robotics)
-      -->
-      <MaxMessageSize>65500B</MaxMessageSize>
-      <!--
-        Avoid DDS traffic on localhost-only when networking is enabled
-        (safe default)
-      -->
-      <AllowMulticast>true</AllowMulticast>
+
+      <!-- Com que utilitzes ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
+           i ROS_STATIC_PEERS, és millor desactivar multicast -->
+      <AllowMulticast>false</AllowMulticast>
+
     </General>
+
+    <!-- Opcional però recomanat en robòtica (imatges, pointclouds) -->
+    <Internal>
+      <SocketReceiveBufferSize min="10MB"/>
+      <SocketSendBufferSize min="10MB"/>
+    </Internal>
+
   </Domain>
 </CycloneDDS>

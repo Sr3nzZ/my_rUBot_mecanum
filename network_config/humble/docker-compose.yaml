@@ -13,11 +13,10 @@ services:
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - ROS_DOMAIN_ID=1 # ⚠️ numero del grup/robot (1,2,3,4)
-      - ROS_LOCALHOST_ONLY=0
 
       # --- Robust pair-only networking ---
       - ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
-      - ROS_STATIC_PEERS=192.168.1.14   # ⚠️ IP del robot (14,24,34,44)
+      - ROS_STATIC_PEERS=192.168.1.64   # ⚠️ IP del robot (14,24,34,44)
 
       # CycloneDDS XML (PC side)
       - CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml
@@ -29,7 +28,7 @@ services:
 
     volumes:
       # Entry point script
-      - ./entrypoint.pc.sh:/entrypoint.pc.sh:ro
+      - ./entrypoint_pc.sh:/entrypoint_pc.sh:ro
       # Timezone from host (for correct log timestamps)
       - /etc/localtime:/etc/localtime:ro
       # X11 display for RViz/Gazebo
@@ -39,5 +38,5 @@ services:
       # CycloneDDS configuration (PC side)
       - ./cyclonedds_pc.xml:/config/cyclonedds_pc.xml:ro
 
-    entrypoint: /entrypoint.pc.sh
+    entrypoint: /entrypoint_pc.sh
     command: sleep infinity
