@@ -3,17 +3,99 @@
   <model name="rubot_mecanum">
     <static>false</static>
 
+    <!-- =========================
+         BASE LINK
+         ========================= -->
+    <link name="base_link">
+      <pose>0 0 0 0 0 0</pose>
+
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.0104</ixx> <ixy>0</ixy> <ixz>0</ixz>
+          <iyy>0.0292</iyy> <iyz>0</iyz>
+          <izz>0.0375</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="base_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.23 0.12 0.10</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="base_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://rubot_mecanum/meshes/rubot/base_link.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <!-- Material opcional -->
+        <material>
+          <ambient>0.8 0.8 0.0 1</ambient>
+          <diffuse>0.8 0.8 0.0 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <!-- =========================
+         CAMERA LINK (RGBD)
+         ========================= -->
     <link name="camera">
+      <!-- Pose RELATIVA al model. Quedarà rigidament unida al base_link via joint -->
       <pose>0.13 0 0.05 0 0 0</pose>
 
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>1e-5</ixx> <ixy>0</ixy> <ixz>0</ixz>
+          <iyy>1e-5</iyy> <iyz>0</iyz>
+          <izz>1e-5</izz>
+        </inertia>
+      </inertial>
+
+      <!-- Col·lisió simple (capseta) -->
+      <collision name="camera_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.05 0.05 0.025</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Visual simple (capseta) -->
+      <visual name="camera_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.05 0.05 0.025</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+        </material>
+      </visual>
+
+      <!-- Sensor RGBD natiu Gazebo Sim -->
       <sensor name="rgbd_camera" type="rgbd_camera">
         <always_on>true</always_on>
         <update_rate>30</update_rate>
 
-        <!-- 🔑 Topic base (Gazebo Transport) -->
+        <!-- Base topic (Gazebo Transport) -->
         <topic>/camera1</topic>
 
-        <!-- (opcional però recomanable) -->
+        <!-- Opcional: renderitzat del frustum -->
         <visualize>false</visualize>
 
         <rgbd_camera>
@@ -39,5 +121,16 @@
         </rgbd_camera>
       </sensor>
     </link>
+
+    <!-- =========================
+         FIXED JOINT
+         ========================= -->
+    <joint name="camera_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>camera</child>
+      <!-- si vols, pots fixar l'offset aquí en comptes del link pose -->
+      <!-- <pose>0.13 0 0.05 0 0 0</pose> -->
+    </joint>
+
   </model>
 </sdf>
