@@ -1,12 +1,14 @@
 <?xml version="1.0"?>
-<sdf version="1.10">
+<sdf version="1.8">
   <model name="sign_left_gz">
     <static>true</static>
 
-    <!-- Stand (mesh visual, box collision) -->
+    <!-- Stand -->
     <link name="stand">
-      <!-- Visual uses the original mesh -->
+
       <visual name="stand_visual">
+        <!-- Si el stand surt girat, prova +/-1.5708 -->
+        <pose>0 0 0 1.5708 0 0</pose>
         <geometry>
           <mesh>
             <uri>model://sign_left_gz/meshes/sign_stand.obj</uri>
@@ -20,7 +22,6 @@
         </material>
       </visual>
 
-      <!-- Box collision sized from mesh bounding box (scaled) -->
       <collision name="stand_collision">
         <pose>0.001343 0.067500 0.000997 0 0 0</pose>
         <geometry>
@@ -29,11 +30,12 @@
           </box>
         </geometry>
       </collision>
+
     </link>
 
-    <!-- Board (mesh visual with texture, box collision) -->
+    <!-- Board -->
     <link name="board">
-      <!-- Keep the original relative placement used in the Classic model -->
+      <!-- No roll -1.57: millor deixar-lo dret i ajustar yaw si cal -->
       <pose>-0.02 0 0.19 -1.57 0 0</pose>
 
       <visual name="board_visual">
@@ -44,15 +46,11 @@
           </mesh>
         </geometry>
 
-        <!-- PBR material (Gazebo Sim) -->
+        <!-- Deixa que l'OBJ+MTL apliquin la textura -->
         <material>
-          <pbr>
-            <metal>
-              <albedo_map>model://sign_left_gz/materials/textures/left.png</albedo_map>
-              <metalness>0.0</metalness>
-              <roughness>0.9</roughness>
-            </metal>
-          </pbr>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+          <specular>0 0 0 1</specular>
         </material>
       </visual>
 
@@ -63,6 +61,7 @@
           </box>
         </geometry>
       </collision>
+
     </link>
 
     <joint name="stand_to_board" type="fixed">

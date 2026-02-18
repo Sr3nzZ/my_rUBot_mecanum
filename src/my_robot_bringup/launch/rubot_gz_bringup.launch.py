@@ -16,7 +16,7 @@ def generate_launch_description():
     model_sdf = LaunchConfiguration("model_sdf")
     bridge_yaml = LaunchConfiguration("bridge_yaml")
 
-    default_world = os.path.join(pkg_bringup, "worlds", "empty_gz.world.sdf")
+    default_world = os.path.join(pkg_bringup, "worlds", "sign_world_ign.world")
     default_model = os.path.join(pkg_bringup, "models", "rubot_mecanum", "model.sdf")
     default_bridge = os.path.join(pkg_bringup, "config", "ros_gz_bridge_camera.yaml")
 
