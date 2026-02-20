@@ -72,12 +72,12 @@
     <!-- Sign model -->
     <include>
       <uri>model://sign_left_gz</uri>
-      <pose>1 0 0 0 0 1.57</pose>
+      <pose>0.5 0 0 0 0 1.57</pose>
     </include>
-    <!-- Wall60cm model -->
+    <!-- Wall120cm model -->
     <include>
-      <uri>model://wall60cm</uri>
-      <pose>1 1 0 0 0 0</pose>
+      <uri>model://wall120cm</uri>
+      <pose>1 0 0 0 0 1.57</pose>
     </include>
 
   </world>

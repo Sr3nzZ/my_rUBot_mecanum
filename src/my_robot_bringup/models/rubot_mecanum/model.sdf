@@ -169,7 +169,7 @@
          Lidar link + sensor
          ========================= -->
     <link name="base_scan">
-      <pose>0 0 0.15 0 0 0</pose>
+      <pose>0 0 0.2 0 0 0</pose>
 
       <visual name="lidar_visual">
         <geometry>
@@ -211,8 +211,9 @@
       </sensor>
     </link>
     <joint name="base_scan_joint" type="fixed">
-      <parent>base_link</parent>
-      <child>base_scan</child>
+        <pose>0 0 0.2 0 0 0</pose>
+        <parent>base_link</parent>
+        <child>base_scan</child>
     </joint>
 
     <!-- =========================
