@@ -4,7 +4,7 @@ Models on `my_robot_bringup/Models`
 
 Launch:
 ````bash
-ros2 launch my_robot_bringup rubot_gz_bringup.launch.py
+ros2 launch my_robot_bringup my_robot_bringup_gz.launch.py world:=square_sign_ign.world robot:=rubot_mecanum x:=0.0 y:=0.0 w:=90
 ````
 In .bashrc add:
 ````bash
