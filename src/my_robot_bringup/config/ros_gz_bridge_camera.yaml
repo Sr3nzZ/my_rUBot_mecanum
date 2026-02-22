@@ -1,21 +1,21 @@
-- topic_name: "/camera1/image"
+- topic_name: "/camera/image"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "ignition.msgs.Image"
   direction: "GZ_TO_ROS"
 
-- topic_name: "/camera1/depth_image"
-  ros_type_name: "sensor_msgs/msg/Image"
-  gz_type_name: "ignition.msgs.Image"
-  direction: "GZ_TO_ROS"
-
-- topic_name: "/camera1/points"
-  ros_type_name: "sensor_msgs/msg/PointCloud2"
-  gz_type_name: "ignition.msgs.PointCloudPacked"
-  direction: "GZ_TO_ROS"
-
-- topic_name: "/camera1/camera_info"
+- topic_name: "/camera/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "ignition.msgs.CameraInfo"
+  direction: "GZ_TO_ROS"
+
+- topic_name: "/camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "ignition.msgs.Image"
+  direction: "GZ_TO_ROS"
+
+- topic_name: "/camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "ignition.msgs.PointCloudPacked"
   direction: "GZ_TO_ROS"
 
 - topic_name: "/scan"
@@ -27,3 +27,8 @@
   ros_type_name: "nav_msgs/msg/Odometry"
   gz_type_name: "ignition.msgs.Odometry"
   direction: "GZ_TO_ROS"
+
+- topic_name: "/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "ignition.msgs.Twist"
+  direction: "ROS_TO_GZ"

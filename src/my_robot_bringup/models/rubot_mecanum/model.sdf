@@ -217,46 +217,59 @@
     </joint>
 
     <!-- =========================
-         Camera link + sensor
-         ========================= -->
+        Camera link + RGBD sensor
+        ========================= -->
     <link name="camera">
-      <pose>0.13 0 0.15 0 0 0</pose>
+    <pose>0.13 0 0.15 0 0 0</pose>
 
-      <visual name="camera_visual">
+    <visual name="camera_visual">
         <geometry>
-          <box><size>0.02 0.05 0.03</size></box>
+        <box><size>0.02 0.05 0.03</size></box>
         </geometry>
         <material>
           <ambient>0.1 0.3 0.1 1</ambient>
           <diffuse>0.1 0.7 0.1 1</diffuse>
           <specular>0.1 0.1 0.1 1</specular>
         </material>
-      </visual>
+    </visual>
 
-      <sensor name="camera" type="camera">
+    <!-- RGBD camera -->
+    <sensor name="rgbd_camera" type="rgbd_camera">
         <always_on>true</always_on>
         <update_rate>30</update_rate>
+
+        <!-- Base topic a Ignition -->
+        <topic>/camera</topic>
+
+        <!-- RGB stream -->
         <camera>
-          <horizontal_fov>1.3962634</horizontal_fov>
-          <image>
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
             <width>640</width>
             <height>480</height>
             <format>R8G8B8</format>
-          </image>
-          <clip>
-            <near>0.05</near>
-            <far>50</far>
-          </clip>
+        </image>
+        <clip>
+            <near>0.02</near>
+            <far>5.0</far>
+        </clip>
         </camera>
-        <topic>/camera</topic>
-      </sensor>
-    </link>
-    <joint name="camera_joint" type="fixed">
-        <pose>0.13 0 0.15 0 0 0</pose>
-        <parent>base_link</parent>
-        <child>camera</child>
-    </joint>
 
+        <!-- Depth stream -->
+        <depth_camera>
+        <clip>
+            <near>0.02</near>
+            <far>5.0</far>
+        </clip>
+        </depth_camera>
+    </sensor>
+    </link>
+
+    <joint name="camera_joint" type="fixed">
+    <pose>0.13 0 0.15 0 0 0</pose>
+    <parent>base_link</parent>
+    <child>camera</child>
+    </joint>
     <!-- =========================
          Holonomic / planar velocity control (Twist)
          ========================= -->

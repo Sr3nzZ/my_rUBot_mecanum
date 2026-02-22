@@ -18,7 +18,7 @@ def generate_launch_description():
 
     # Args
     world = LaunchConfiguration("world")
-    robot = LaunchConfiguration("robot")
+    robot_name = LaunchConfiguration("robot")
     x = LaunchConfiguration("x")
     y = LaunchConfiguration("y")
     w = LaunchConfiguration("w")
@@ -27,7 +27,7 @@ def generate_launch_description():
     default_robot = "rubot_mecanum"
 
     world_path = PathJoinSubstitution([TextSubstitution(text=pkg_bringup), "worlds", world])
-    robot_sdf_path = PathJoinSubstitution([TextSubstitution(text=pkg_bringup), "models", robot, "model.sdf"])
+    robot_sdf_path = PathJoinSubstitution([TextSubstitution(text=pkg_bringup), "models", robot_name, "model.sdf"])
     yaw_rad = PythonExpression([w, " * 3.141592653589793 / 180.0"])
 
     bridge_yaml = os.path.join(pkg_bringup, "config", "ros_gz_bridge_camera.yaml")
@@ -55,7 +55,8 @@ def generate_launch_description():
         output="screen",
         arguments=["raw", "compressed"],
         remappings=[
-            ("/out/compressed", "/camera1/image/compressed"),
+            ("/in", "/camera/image"),
+            ("/out/compressed", "/camera/image/compressed"),
         ],
         parameters=[{"use_sim_time": True}],
     )
@@ -67,7 +68,8 @@ def generate_launch_description():
         output="screen",
         arguments=["raw", "compressedDepth"],
         remappings=[
-            ("/out/compressedDepth", "/camera1/depth_image/compressedDepth"),
+            ("/in", "/camera/depth_image"),
+            ("/out/compressedDepth", "/camera/depth_image/compressedDepth"),
         ],
         parameters=[{"use_sim_time": True}],
     )
@@ -84,7 +86,7 @@ def generate_launch_description():
         executable="create",
         output="screen",
         arguments=[
-            "-name", robot,
+            "-name", robot_name,
             "-file", robot_sdf_path,
             "-x", x, "-y", y,
             "-z", "0.05",
@@ -104,20 +106,30 @@ def generate_launch_description():
         ],
     )
 
-    # ✅ Fix TF for lidar frame coming from Gazebo Sim: <robot>/base_scan/lidar
-    lidar_sensor_frame = PythonExpression(["'", robot, "/base_scan/lidar'"])
-
+    # Link frame_id base_scan from ROS2 to frame_id from Gazebo Sim: <robot>/base_scan/lidar
+    lidar_sensor_frame = PythonExpression(["'", robot_name, "/base_scan/lidar'"])
     static_lidar_tf = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen",
-        arguments=["0", "0", "0", "0", "0", "0", "base_scan", lidar_sensor_frame],
+        # x y z qx qy qz qw parent child
+        arguments=["0","0","0","0","0","0","1", "base_scan", lidar_sensor_frame],
+        parameters=[{"use_sim_time": True}],
+    )
+    # Link frame_id camera from ROS2 to frame_id from Gazebo Sim: <robot>/camera/rgbd_camera
+    camera_sensor_frame = PythonExpression(["'", robot_name, "/camera/rgbd_camera'"])
+    static_camera_tf = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        output="screen",
+        # x y z qx qy qz qw parent child
+        arguments=["0","0","0","0","0","0","1", "camera", camera_sensor_frame],
         parameters=[{"use_sim_time": True}],
     )
 
     delayed_gz = TimerAction(
-        period=2.0,
-        actions=[spawn, bridge, static_lidar_tf],
+        period=5.0,
+        actions=[spawn, bridge, static_lidar_tf, static_camera_tf],
     )
 
     return LaunchDescription([
