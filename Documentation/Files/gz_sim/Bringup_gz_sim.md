@@ -31,3 +31,7 @@ python3 depth_to_mono8.py --ros-args -p min_m:=0.2 -p max_m:=3.0
 - Open rviz2 and look at the generated topic `/camera/depth_image_mono8` to visualize the depth
 ![](./ign_depth.png)
 This is only to obtain a proper visual gray-scale, but the real depth is obtained in the `/camera/depth_image` topic
+
+You can move the robot to face the traffic sign:
+![](./ign_world2.png)
+![](./ign_depth2.png)

@@ -113,7 +113,12 @@ def generate_launch_description():
         executable="static_transform_publisher",
         output="screen",
         # x y z qx qy qz qw parent child
-        arguments=["0","0","0","0","0","0","1", "base_scan", lidar_sensor_frame],
+        arguments=[
+            "--x", "0", "--y", "0", "--z", "0",
+            "--qx", "0", "--qy", "0", "--qz", "0", "--qw", "1",
+            "--frame-id", "base_scan",
+            "--child-frame-id", lidar_sensor_frame,
+        ],
         parameters=[{"use_sim_time": True}],
     )
     # Link frame_id camera from ROS2 to frame_id from Gazebo Sim: <robot>/camera/rgbd_camera
@@ -123,7 +128,12 @@ def generate_launch_description():
         executable="static_transform_publisher",
         output="screen",
         # x y z qx qy qz qw parent child
-        arguments=["0","0","0","0","0","0","1", "camera", camera_sensor_frame],
+        arguments=[
+            "--x", "0", "--y", "0", "--z", "0",
+            "--qx", "0", "--qy", "0", "--qz", "0", "--qw", "1",
+            "--frame-id", "camera",
+            "--child-frame-id", camera_sensor_frame,
+        ],
         parameters=[{"use_sim_time": True}],
     )
 
