@@ -32,3 +32,8 @@
   ros_type_name: "geometry_msgs/msg/Twist"
   gz_type_name: "ignition.msgs.Twist"
   direction: "ROS_TO_GZ"
+
+- topic_name: "/world/empty_world_ign/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "ignition.msgs.Clock"
+  direction: "GZ_TO_ROS"

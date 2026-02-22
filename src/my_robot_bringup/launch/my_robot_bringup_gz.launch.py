@@ -100,10 +100,29 @@ def generate_launch_description():
         executable="parameter_bridge",
         name="ros_gz_bridge",
         output="screen",
-        parameters=[
-            {"use_sim_time": True},
-            {"config_file": bridge_yaml},
+        arguments=[
+            "--ros-args",
+            "-p", f"config_file:={bridge_yaml}",
         ],
+    )
+
+    # Clock
+    clock_relay = Node(
+        package='topic_tools',
+        executable='relay',
+        name='clock_relay',
+        output='screen',
+        arguments=['/world/empty_world_ign/clock', '/clock'],
+    )
+
+    # Localization TF odom
+    ekf_yaml = os.path.join(pkg_bringup, "config", "ekf_odom.yaml")
+    ekf = Node(
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_filter_node",
+        output="screen",
+        parameters=[ekf_yaml],
     )
 
     # Link frame_id base_scan from ROS2 to frame_id from Gazebo Sim: <robot>/base_scan/lidar
@@ -136,10 +155,23 @@ def generate_launch_description():
         ],
         parameters=[{"use_sim_time": True}],
     )
+    # Link base_footprint --> base_link
+    static_basefootprint_tf = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        output="screen",
+        arguments=[
+            "--x", "0", "--y", "0", "--z", "0",
+            "--qx", "0", "--qy", "0", "--qz", "0", "--qw", "1",
+            "--frame-id", "base_footprint",
+            "--child-frame-id", "base_link",
+        ],
+        parameters=[{"use_sim_time": True}],
+    )
 
     delayed_gz = TimerAction(
         period=5.0,
-        actions=[spawn, bridge, static_lidar_tf, static_camera_tf],
+        actions=[spawn, bridge, clock_relay, ekf, static_basefootprint_tf, static_lidar_tf, static_camera_tf],
     )
 
     return LaunchDescription([
