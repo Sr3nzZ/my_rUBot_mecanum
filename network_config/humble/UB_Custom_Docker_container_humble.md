@@ -35,6 +35,7 @@ This image can be used for:
     docker exec -it pc_humble bash
     code .  # to open VSCode inside the container
     ```
+- Clone your ws in home
 - Verify in container **.bashrc** to have:
     ```bash
     source /opt/ros/humble/setup.bash
@@ -42,6 +43,9 @@ This image can be used for:
     export QT_QPA_PLATFORM=xcb  # good default for RViz2 on many systems
     cd ~/my_rUBot_mecanum
     ```
+- If your `cyclonedds_pc.xml` has not correct network interfaces errors will arrise
+    - unset CYCLONEDDS_URI: to continue for simulation
+    - correct the interfaces with the proper values
 
 You are ready to work inside the container and to connect to the robot hardware within ROS2 Humble on Docker!
 
