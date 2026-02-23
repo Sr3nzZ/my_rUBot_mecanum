@@ -14,23 +14,6 @@ This image can be used for:
     - Install the `Docker` and `Remote Development` extensions from the VScode marketplace.
     - Clone your forked repository `my_rUBot_mecanum`
 
-**PC-win** will only work on SIM use. docker-compose_xlaunch.yaml or docker-compose_wsl2.yaml are configured by default for SIM use.
-
-- Open a terminal in `~/my_rUBot_mecanum/network_config/humble` and run:
-    ````bash
-    docker compose -f docker-compose_xlaunch.yaml up
-    ````
-- Open Xlaunch in your PC-Host
-- Verify the environment variables are correctly set by checking the container startup output.
-- In Host VScode you can `attach VScode`. 
-- Verify in container **.bashrc** to have:
-    ```bash
-    source /opt/ros/humble/setup.bash
-    source ~/my_rUBot_mecanum/install/setup.bash
-    export QT_QPA_PLATFORM=xcb  # good default for RViz2 on many systems
-    cd ~/my_rUBot_mecanum
-    ```
-You are ready to work inside the container for SIM use!
 
 **PC-ubuntu/linux** will work on SIM and LAB use. docker-compose.yaml is configured by default for LAB use.
 - In `~/my_rUBot_mecanum/network_config/humble` review in function of SIM or LAB case, on:
@@ -39,7 +22,7 @@ You are ready to work inside the container for SIM use!
         - `ROS_AUTOMATIC_DISCOVERY_RANGE` SUBNET (SIM use) or OFF (LAB use).
         - `ROS_STATIC_PEERS` not set (SIM use) or set with your robot IP (LAB Use).
     - `cyclonedds_pc.xml` file: 
-        - `NetworkInterface`: not specified.
+        - `NetworkInterface`: not specified or PC-IP
         - `AllowMulticast` true (SIM use) or false (LAB Use).
 - Open a terminal in `~/my_rUBot_mecanum/network_config/humble` and run:
     ````bash
