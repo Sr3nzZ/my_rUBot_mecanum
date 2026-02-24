@@ -259,7 +259,7 @@
   </gazebo>
   <!-- 3D Camera controller -->
   <gazebo reference="camera">
-    <sensor name="rgbd_camera" type="depth">
+    <sensor name="rubot_camera" type="depth">
         <always_on>1</always_on>
         <update_rate>10</update_rate>
         <visualize>1</visualize>
@@ -275,7 +275,7 @@
             </clip>
         </camera>
         <plugin filename="libgazebo_ros_camera.so" name="gazebo_ros_depth_camera_sensor">
-            <camera_name>rubot/camera</camera_name>
+            <camera_name>camera</camera_name>
             <frame_name>camera</frame_name>
             <hack_baseline>0.07</hack_baseline>
             <min_depth>0.001</min_depth>

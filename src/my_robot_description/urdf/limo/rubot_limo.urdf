@@ -309,9 +309,6 @@
             </camera>
 
             <plugin name="gazebo_ros_depth_camera_sensor" filename="libgazebo_ros_camera.so">
-              <ros>
-                <namespace>/limo</namespace>
-              </ros>
               <camera_name>camera</camera_name>
               <frame_name>camera</frame_name>
               <hack_baseline>0.07</hack_baseline>
