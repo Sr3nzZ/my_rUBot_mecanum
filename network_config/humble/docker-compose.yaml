@@ -12,11 +12,11 @@ services:
 
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - ROS_DOMAIN_ID=1 # ⚠️ numero del grup/robot (1,2,3,4)
+      - ROS_DOMAIN_ID=2 # ⚠️ numero del grup/robot (1,2,3,4)
 
       # --- Robust pair-only networking ---
       - ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
-      - ROS_STATIC_PEERS=192.168.1.64   # ⚠️ IP del robot (14,24,34,44)
+      - ROS_STATIC_PEERS=192.168.1.24   # ⚠️ IP del robot (14,24,34,44)
 
       # CycloneDDS XML (PC side)
       - CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml
