@@ -1,6 +1,6 @@
 services:
   pc-humble:
-    image: manelpuig/ros2-humble-biorobub-pc:latest
+    image: manelpuig/ros2-humble-ub-biorob:latest
     container_name: pc_humble
 
     privileged: true
