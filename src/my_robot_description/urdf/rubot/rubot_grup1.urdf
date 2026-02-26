@@ -119,20 +119,46 @@
     </visual>
   </link>
 
-  <!-- ===== Camera frame ===== -->
-  <joint name="camera_joint" type="fixed">
+  <!-- ===== Top 3D Part (Number 2) ===== -->
+  <joint name="top_part_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="camera"/>
-    <origin xyz="0.13 0 0.08" rpy="0 0 0"/>
+    <child link="top_part"/>
+    <origin xyz="0 0 0.20" rpy="0 0 0"/>
   </joint>
-  <link name="camera">
+
+  <link name="top_part">
+    <!-- VISUAL (Number 2 mesh) -->
     <visual>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <geometry>
-            <box size="0.025 0.05 0.025"/>
-        </geometry>
-        <material name="fuchsia"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/rubot/number2.stl"
+              scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="fuchsia"/>
     </visual>
+
+    <!-- COLLISION (simple box for stability in Gazebo) -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.12 0.12 0.06"/>
+      </geometry>
+    </collision>
+
+    <!-- INERTIAL (required for Gazebo physics) -->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.2"/>
+      <inertia
+        ixx="0.001" ixy="0.0" ixz="0.0"
+        iyy="0.001" iyz="0.0"
+        izz="0.001"/>
+    </inertial>
   </link>
+
+  <!-- Gazebo material -->
+  <gazebo reference="top_part">
+    <material>Gazebo/Purple</material>
+  </gazebo>
 
 </robot>
