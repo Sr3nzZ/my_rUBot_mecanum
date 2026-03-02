@@ -138,9 +138,13 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
     finally:
+        # Safety: publish stop once on exit
+        try:
+            robot._cmdVel.publish(Twist())
+        except Exception:
+            pass
         robot.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
-
 if __name__ == '__main__':
     main()    

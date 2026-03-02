@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 import math
-
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import qos_profile_sensor_data
-
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 
@@ -49,7 +46,7 @@ class TwistLidarStop(Node):
             LaserScan,
             "/scan",
             self.scan_cb,
-            qos_profile_sensor_data,
+            10,
         )
 
         self.get_logger().info(
@@ -95,6 +92,7 @@ class TwistLidarStop(Node):
                 f"STOP: obstacle at {closest_r:.2f} m, angle {closest_ang:.0f}° "
                 f"(threshold {self.stop_distance:.2f} m)"
             )
+
 
 def main(args=None):
     rclpy.init(args=args)
