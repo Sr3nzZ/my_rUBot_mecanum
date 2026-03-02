@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot name="rubot_mecanum">
-  <material name="white">
-    <color rgba="1.0 1.0 1.0 1.0"/>
-  </material>
   <material name="pink">
     <color rgba="1.0 0.4 0.7 1.0"/>
   </material>
@@ -12,53 +9,55 @@
   <material name="lilac">
     <color rgba="0.78 0.70 0.95 1.0"/>
   </material>
+  <material name="black">
+    <color rgba="0.15 0.15 0.15 1.0"/>
+  </material>
+  <material name="dark_grey">
+    <color rgba="0.2 0.2 0.2 1.0"/>
+  </material>
 
-  <!-- ===== Frames base ===== -->
+<!-- base_footprint reference frame without inertia is needed -->
   <link name="base_footprint"/>
-
+<!-- base_link -->
   <joint name="base_link_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="base_footprint"/>
     <child link="base_link"/>
   </joint>
-
   <link name="base_link">
-    <!-- Visual (per RViz) -->
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/rubot/base_link.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="file://$(find my_robot_description)/meshes/rubot/base_link.stl" scale="0.001 0.001 0.001"/>
+        <!-- <box size="0.26 0.15 0.08"/>-->
       </geometry>
-      <material name="white"/>
+      <material name="black"/>
     </visual>
-
-    <!-- Collision (per costmaps si vols usar robot footprint/voxel amb robot model) -->
     <collision>
       <origin xyz="0 0 0"/>
       <geometry>
         <box size="0.23 0.12 0.1"/>
       </geometry>
     </collision>
-
     <inertial>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <mass value="5"/>
       <inertia ixx="0.0104" ixy="0" ixz="0" iyy="0.0292" iyz="0" izz="0.0375"/>
     </inertial>
   </link>
-
-  <!-- ===== Wheels ===== -->
+<!-- upper_left_wheel -->
   <joint name="upper_left_wheel_joint" type="continuous">
-    <origin xyz="0.07 0.10 0.00" rpy="0 0 0"/>
+    <origin rpy="0 0 0" xyz="0.07 0.1 0"/>
     <parent link="base_link"/>
     <child link="upper_left_wheel"/>
     <axis xyz="0 1 0"/>
   </joint>
   <link name="upper_left_wheel">
     <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="file://$(find my_robot_description)/meshes/rubot/upper_left_wheel.stl" scale="0.001 0.001 0.001"/>
+        <!-- <cylinder length="0.03" radius="0.05"/>-->
       </geometry>
       <material name="pink"/>
     </visual>
@@ -73,9 +72,9 @@
       <inertia ixx="0.000166" ixy="0" ixz="0" iyy="0.000303" iyz="0" izz="0.000166"/>
     </inertial>
   </link>
-
+<!-- lower_left_wheel -->
   <joint name="lower_left_wheel_joint" type="continuous">
-  <origin rpy="0 0 0" xyz="-0.085 0.1 0"/>
+    <origin rpy="0 0 0" xyz="-0.085 0.1 0"/>
     <parent link="base_link"/>
     <child link="lower_left_wheel"/>
     <axis xyz="0 1 0"/>
@@ -85,6 +84,7 @@
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="file://$(find my_robot_description)/meshes/rubot/lower_left_wheel.stl" scale="0.001 0.001 0.001"/>
+        <!--<cylinder length="0.03" radius="0.05"/>-->
       </geometry>
       <material name="pink"/>
     </visual>
@@ -99,17 +99,19 @@
       <inertia ixx="0.000166" ixy="0" ixz="0" iyy="0.000303" iyz="0" izz="0.000166"/>
     </inertial>
   </link>
-
+<!-- upper_right_wheel -->
   <joint name="upper_right_wheel_joint" type="continuous">
-  <origin rpy="0 0 3.14" xyz="0.07 -0.1 0"/>
+    <origin rpy="0 0 3.14" xyz="0.07 -0.1 0"/>
     <parent link="base_link"/>
     <child link="upper_right_wheel"/>
     <axis xyz="0 -1 0"/>
   </joint>
   <link name="upper_right_wheel">
     <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="file://$(find my_robot_description)/meshes/rubot/upper_right_wheel.stl" scale="0.001 0.001 0.001"/>
+        <!--<cylinder length="0.03" radius="0.05"/>-->
       </geometry>
       <material name="pink"/>
     </visual>
@@ -124,7 +126,7 @@
       <inertia ixx="0.000166" ixy="0" ixz="0" iyy="0.000303" iyz="0" izz="0.000166"/>
     </inertial>
   </link>
-
+<!-- lower_right_wheel -->
   <joint name="lower_right_wheel_joint" type="continuous">
     <origin rpy="0 0 3.14" xyz="-0.085 -0.1 0"/>
     <parent link="base_link"/>
@@ -133,8 +135,10 @@
   </joint>
   <link name="lower_right_wheel">
     <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="file://$(find my_robot_description)/meshes/rubot/lower_right_wheel.stl" scale="0.001 0.001 0.001"/>
+        <!--<cylinder length="0.03" radius="0.05"/>-->
       </geometry>
       <material name="pink"/>
     </visual>
@@ -149,7 +153,6 @@
       <inertia ixx="0.000166" ixy="0" ixz="0" iyy="0.000303" iyz="0" izz="0.000166"/>
     </inertial>
   </link>
-
 <!-- 2D/3D Camera -->
   <joint name="joint_camera" type="fixed">
     <origin rpy="0 0 0" xyz="0.130 0.0 0.08"/>
@@ -162,7 +165,7 @@
       <geometry>
         <box size="0.025 0.05 0.025"/>
       </geometry>
-      <material name="black"/>
+      <material name="fuchsia"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -175,9 +178,9 @@
       <mass value="0.01"/>
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
     </inertial>
-  </link> 
+  </link>
 
-  <!-- LIDAR base_scan -->
+<!-- LIDAR base_scan -->
   <link name="base_scan">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -185,7 +188,7 @@
         <mesh filename="file://$(find my_robot_description)/meshes/rubot/Lidar.stl" scale="0.001 0.001 0.001"/>
         <!--<cylinder length="0.05" radius="0.05"/>-->
       </geometry>
-      <material name="lilac"/>
+      <material name="fuchsia"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -206,23 +209,58 @@
     <child link="base_scan"/>
   </joint>
 
-  <joint name="joint_part" type="fixed">
-    <parent link="base_link"/>
-    <child link="top_part"/>
-    <origin xyz="0 0 0.20" rpy="0 0 0"/>
+  <!-- Cube on top of LIDAR -->
+  <joint name="lidar_cube_joint" type="fixed">
+    <origin xyz="0 0 0.005" rpy="0 0 0"/>
+    <parent link="base_scan"/>
+    <child link="lidar_cube"/>
   </joint>
-  <link name="top_part">
+
+  <link name="lidar_cube">
+
     <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="file://$(find my_robot_description)/meshes/rubot/number2.stl" scale="0.001 0.001 0.001"/>
+        <box size="0.03 0.03 0.03"/>
       </geometry>
-      <material name="fuchsia"/>
+      <material name="pink"/>
     </visual>
+
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.12 0.12 0.06"/>
+        <box size="0.02 0.02 0.02"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="0.005"/>
+      <inertia ixx="5e-7" ixy="0" ixz="0"
+              iyy="5e-7" iyz="0"
+              izz="5e-7"/>
+    </inertial>
+
+  </link>
+
+  <!-- Box part -->
+  <joint name="joint_part" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.10 0.0 0.08"/>
+    <parent link="base_link"/>
+    <child link="part"/>
+  </joint>
+  <link name="part">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find my_robot_description)/meshes/rubot/number2.stl" scale="0.0008 0.0008 0.0008"/>
+        <!--<box size="0.05 0.05 0.025"/>-->
+      </geometry>
+      <material name="lilac"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.05 0.025"/>
       </geometry>
     </collision>
     <inertial>
@@ -230,7 +268,6 @@
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
     </inertial>
   </link>
-
   <!-- Mecanum drive controller -->
   <gazebo>
         <plugin name="mecanum_controller" filename="libgazebo_ros_planar_move.so">
@@ -280,6 +317,35 @@
     </sensor>
   </gazebo> 
 
+  <!-- 2D Camera controller 
+  <gazebo reference="camera">
+    <sensor name="camera" type="camera">
+      <update_rate>30.0</update_rate>
+      <camera name="front">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>320</width>
+          <height>240</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+      </camera>
+      <plugin filename="libgazebo_ros_camera.so" name="camera_controller">
+        <alwaysOn>true</alwaysOn>
+        <visualize>false</visualize>
+        <cameraName>rubot/camera1</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera</frameName>
+        <hackBaseline>0.07</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>-->
+
+  <!-- Laser Distance Sensor YDLIDAR X4 controller-->
   <gazebo reference="base_scan">
     <sensor name="lidar" type="ray">
     <pose>0.215 0 0.215 0 0 0</pose>
@@ -315,65 +381,64 @@
     </plugin>
     </sensor>
   </gazebo>
-
 <!-- Gazebo colors have to be specified here with predefined Gazebo colors -->
 <!-- lower friction with floor -->
   <gazebo reference="base_link">
-      <material>Gazebo/White</material>
-      <mu1>0.005</mu1>
-      <mu2>0.005</mu2>
-    </gazebo>
-    <gazebo reference="base_scan">
-      <material>Gazebo/Yellow</material>
-    </gazebo>
-    <gazebo reference="camera">
-      <material>Gazebo/Black</material>
-    </gazebo>
-    <gazebo reference="top_part">
-      <material>Gazebo/Red</material>
-    </gazebo>
-    <gazebo reference="upper_left_wheel">
-      <material>Gazebo/Grey</material>
-      <mu1>0.5</mu1>
-      <mu2>0.5</mu2>
-      <kp>1000</kp>
-      <ki>100</ki>
-      <kd>1</kd>
-      <minDepth>0.001</minDepth>
-      <maxVel>0.5</maxVel>
-      <fdir1>1 0 0</fdir1>
-    </gazebo>
-    <gazebo reference="lower_left_wheel">
-      <material>Gazebo/Grey</material>
-      <mu1>0.5</mu1>
-      <mu2>0.5</mu2>
-      <kp>1000</kp>
-      <ki>100</ki>
-      <kd>1</kd>
-      <minDepth>0.001</minDepth>
-      <maxVel>0.5</maxVel>
-      <fdir1>1 0 0</fdir1>
-    </gazebo>
-    <gazebo reference="upper_right_wheel">
-      <material>Gazebo/Grey</material>
-      <mu1>0.5</mu1>
-      <mu2>0.5</mu2>
-      <kp>1000</kp>
-      <ki>100</ki>
-      <kd>1</kd>
-      <minDepth>0.001</minDepth>
-      <maxVel>0.5</maxVel>
-      <fdir1>1 0 0</fdir1>
-    </gazebo>
-    <gazebo reference="lower_right_wheel">
-      <material>Gazebo/Grey</material>
-      <mu1>0.5</mu1>
-      <mu2>0.5</mu2>
-      <kp>1000</kp>
-      <ki>100</ki>
-      <kd>1</kd>
-      <minDepth>0.001</minDepth>
-      <maxVel>0.5</maxVel>
-      <fdir1>1 0 0</fdir1>
-    </gazebo>
+    <material>Gazebo/Red</material>
+    <mu1>0.005</mu1>
+    <mu2>0.005</mu2>
+  </gazebo>
+  <gazebo reference="base_scan">
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+  <gazebo reference="camera">
+    <material>Gazebo/Orange</material>
+  </gazebo>
+  <gazebo reference="part">
+    <material>Gazebo/Purple</material>
+  </gazebo>
+  <gazebo reference="upper_left_wheel">
+    <material>Gazebo/Pink</material>
+    <mu1>0.5</mu1>
+    <mu2>0.5</mu2>
+    <kp>1000</kp>
+    <ki>100</ki>
+    <kd>1</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.5</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+  <gazebo reference="lower_left_wheel">
+    <material>Gazebo/Pink</material>
+    <mu1>0.5</mu1>
+    <mu2>0.5</mu2>
+    <kp>1000</kp>
+    <ki>100</ki>
+    <kd>1</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.5</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+  <gazebo reference="upper_right_wheel">
+    <material>Gazebo/Pink</material>
+    <mu1>0.5</mu1>
+    <mu2>0.5</mu2>
+    <kp>1000</kp>
+    <ki>100</ki>
+    <kd>1</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.5</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+  <gazebo reference="lower_right_wheel">
+    <material>Gazebo/Pink</material>
+    <mu1>0.5</mu1>
+    <mu2>0.5</mu2>
+    <kp>1000</kp>
+    <ki>100</ki>
+    <kd>1</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.5</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
 </robot>
