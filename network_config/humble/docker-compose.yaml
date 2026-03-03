@@ -22,6 +22,7 @@ services:
       - CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml
 
       # X11 / rendering
+      - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
       - LIBGL_ALWAYS_SOFTWARE=1
       - MESA_GL_VERSION_OVERRIDE=2.1
