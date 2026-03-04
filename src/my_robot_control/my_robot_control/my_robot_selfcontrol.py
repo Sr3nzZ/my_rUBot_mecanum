@@ -62,47 +62,43 @@ class RobotSelfControl(Node):
         if self._shutting_down:
             return
 
-        angle_min_deg = scan.angle_min * 180.0 / 3.14159
-        angle_increment_deg = scan.angle_increment * 180.0 / 3.14159
+        angle_min_deg = math.degrees(scan.angle_min)
+        angle_inc_deg = math.degrees(scan.angle_increment)
 
-        # Filter valid readings within [-150°, 150°]
-        custom_range = []
+        closest_distance = float("inf")
+        angle_closest = 0.0
+
         for i, distance in enumerate(scan.ranges):
-            # Angle on robot
-            angle_robot_deg =angle_min_deg + i * angle_increment_deg
-            if angle_robot_deg > 180.0:
-                angle_robot_deg -= 360.0
-            if not math.isfinite(distance) or distance <= 0.0:
-                continue
-            if distance < scan.range_min or distance > scan.range_max:
-                continue
-            if -150 < angle_robot_deg < 150:
-                custom_range.append((distance, angle_robot_deg))
-            else:
-                continue
 
-        if not custom_range:
+            if math.isfinite(distance) and \
+                    scan.range_min < distance < scan.range_max:
+
+
+                angle_deg = angle_min_deg + i * angle_inc_deg
+
+                # Force into 0–360
+                angle_norm = angle_deg % 360.0
+
+                if distance < closest_distance:
+                    closest_distance = distance
+                    angle_closest = angle_norm
+
+        if closest_distance == float("inf"):
             return
-        closest_distance, angle_closest_distance = min(custom_range)
 
         # Determine zone
-        if -45 <= angle_closest_distance <= 45:
+        if angle_closest <= 45 or angle_closest >= 315:
             zone = "FRONT"
-        elif 45 < angle_closest_distance <= 110:
+        elif 45 < angle_closest <= 110:
             zone = "LEFT"
-        elif -110 <= angle_closest_distance < -45:
+        elif 250 <= angle_closest < 315:
             zone = "RIGHT"
-        elif 110 < angle_closest_distance <= 150:
+        elif 110 < angle_closest <= 180:
             zone = "BACK_LEFT"
-        elif -150 <= angle_closest_distance < -110:
+        elif 180 < angle_closest < 250:
             zone = "BACK_RIGHT"
         else:
-            zone = "OUTSIDE FOV"
-
-        now = self.get_clock().now().nanoseconds * 1e-9
-        if now - self._last_info_time >= 1:
-            self.get_logger().info(f"[DETECTION] Distance: {closest_distance:.2f} m | Angle: {angle_closest_distance:.0f}° | Zone: {zone}")
-            self._last_info_time = now
+            zone = "BACK"
 
         # React to obstacle
         if closest_distance < self._distanceLimit:
@@ -124,14 +120,6 @@ class RobotSelfControl(Node):
         else:
             self._msg.linear.x = self._forwardSpeed * self._speedFactor
             self._msg.angular.z = 0.0
-
-    def stop(self):
-        self._shutting_down = True
-        stop_msg = Twist()
-        stop_msg.linear.x = 0.0
-        stop_msg.angular.z = 0.0
-        self._cmdVel.publish(stop_msg)
-        rclpy.spin_once(self, timeout_sec=0.1)
 
 def main(args=None):
     rclpy.init(args=args)
