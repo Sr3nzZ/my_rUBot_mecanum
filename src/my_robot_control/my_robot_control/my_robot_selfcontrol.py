@@ -59,6 +59,7 @@ class RobotSelfControl(Node):
             return
 
     def laser_callback(self, scan):
+
         if self._shutting_down:
             return
 
@@ -71,30 +72,27 @@ class RobotSelfControl(Node):
         for i, distance in enumerate(scan.ranges):
 
             if math.isfinite(distance) and \
-                    scan.range_min < distance < scan.range_max:
-
+            scan.range_min < distance < scan.range_max:
 
                 angle_deg = angle_min_deg + i * angle_inc_deg
 
-                angle_norm = angle_deg % 360.0
-
                 if distance < closest_distance:
                     closest_distance = distance
-                    angle_closest = angle_norm
+                    angle_closest = angle_deg
 
         if closest_distance == float("inf"):
             return
 
         # Determine zone
-        if angle_closest <= 45 or angle_closest >= 315:
+        if -45 <= angle_closest <= 45:
             zone = "FRONT"
         elif 45 < angle_closest <= 110:
             zone = "LEFT"
-        elif 250 <= angle_closest < 315:
+        elif -110 <= angle_closest < -45:
             zone = "RIGHT"
         elif 110 < angle_closest <= 180:
             zone = "BACK_LEFT"
-        elif 180 < angle_closest < 250:
+        elif -180 <= angle_closest < -110:
             zone = "BACK_RIGHT"
         else:
             zone = "BACK"
