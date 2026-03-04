@@ -76,7 +76,6 @@ class RobotSelfControl(Node):
 
                 angle_deg = angle_min_deg + i * angle_inc_deg
 
-                # Force into 0–360
                 angle_norm = angle_deg % 360.0
 
                 if distance < closest_distance:
