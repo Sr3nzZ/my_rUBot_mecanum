@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 import math
 
 
@@ -30,12 +31,21 @@ class RobotSelfControl(Node):
         self._cmdVel = self.create_publisher(Twist, '/cmd_vel', 10)
         self.timer = self.create_timer(0.05, self.timer_callback)
 
+        # QoS optimized for LIDAR
+        scan_qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=5,
+            durability=QoSDurabilityPolicy.VOLATILE
+        )
+
         self.subscription = self.create_subscription(
             LaserScan,
             '/scan',
             self.laser_callback,
-            10  # Default QoS depth
+            scan_qos
         )
+
         self.start_time = self.get_clock().now().nanoseconds * 1e-9
         self._shutting_down = False
         self._last_info_time = self.start_time
@@ -44,14 +54,20 @@ class RobotSelfControl(Node):
     def timer_callback(self):
         if self._shutting_down:
             return
+
         now_sec = self.get_clock().now().nanoseconds * 1e-9
         elapsed_time = now_sec - self.start_time
 
         self._cmdVel.publish(self._msg)
 
         if now_sec - self._last_speed_time >= 1:
-            self.get_logger().info(f"Vx: {self._msg.linear.x:.2f} m/s, w: {self._msg.angular.z:.2f} rad/s | Time: {elapsed_time:.1f}s")
+            self.get_logger().info(
+                f"Vx: {self._msg.linear.x:.2f} m/s, "
+                f"w: {self._msg.angular.z:.2f} rad/s | "
+                f"Time: {elapsed_time:.1f}s"
+            )
             self._last_speed_time = now_sec
+
         if elapsed_time >= self._time_to_stop:
             self.timer.cancel()
             self.stop()
@@ -72,7 +88,7 @@ class RobotSelfControl(Node):
         for i, distance in enumerate(scan.ranges):
 
             if math.isfinite(distance) and \
-            scan.range_min < distance < scan.range_max:
+               scan.range_min < distance < scan.range_max:
 
                 angle_deg = angle_min_deg + i * angle_inc_deg
 
@@ -118,15 +134,16 @@ class RobotSelfControl(Node):
             self._msg.linear.x = self._forwardSpeed * self._speedFactor
             self._msg.angular.z = 0.0
 
-
     def stop(self):
         self._shutting_down = True
         stop_msg = Twist()
         self._cmdVel.publish(stop_msg)
 
+
 def main(args=None):
     rclpy.init(args=args)
     robot = RobotSelfControl()
+
     try:
         rclpy.spin(robot)
     except KeyboardInterrupt:
@@ -137,8 +154,12 @@ def main(args=None):
             robot._cmdVel.publish(Twist())
         except Exception:
             pass
+
         robot.destroy_node()
+
         if rclpy.ok():
             rclpy.shutdown()
+
+
 if __name__ == '__main__':
-    main()    
+    main()

@@ -1,4 +1,4 @@
-<sdf version='1.7'>
+<sdf version='1.8'>
   <world name='default'>
     <light name='sun' type='directional'>
       <cast_shadows>1</cast_shadows>
@@ -1332,6 +1332,10 @@
       <light name='sun'>
         <pose>0 0 10 0 -0 0</pose>
       </light>
+      <include>
+      <uri>model://rubot_mecanum</uri>
+      <pose>0 0 0.05 0 0 0</pose> <!-- x y z r p y -->
+        </include>
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
