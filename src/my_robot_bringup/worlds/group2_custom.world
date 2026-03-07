@@ -1075,10 +1075,10 @@
       </link>
     </model>
     <state world_name='default'>
-      <sim_time>1281 994000000</sim_time>
-      <real_time>1287 889140526</real_time>
-      <wall_time>1772047562 752128955</wall_time>
-      <iterations>1281994</iterations>
+      <sim_time>1688 710000000</sim_time>
+      <real_time>227 846532344</real_time>
+      <wall_time>1772900157 714333978</wall_time>
+      <iterations>226490</iterations>
       <model name='ground_plane'>
         <pose>0 0 0 0 -0 0</pose>
         <scale>1 1 1</scale>
@@ -1090,240 +1090,240 @@
         </link>
       </model>
       <model name='wall120cm'>
-        <pose>0.59832 2.01797 0 0 -0 0</pose>
+        <pose>0.59832 2.01797 0.164636 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>0.59832 2.01797 0 0 -0 0</pose>
+          <pose>0.59832 2.01797 0.164636 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall120cm_0'>
-        <pose>-0.598319 2.01253 0 0 -0 0</pose>
+        <pose>-0.598319 2.01253 0.167567 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-0.598319 2.01253 0 0 -0 0</pose>
+          <pose>-0.598319 2.01253 0.167567 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall120cm_1'>
-        <pose>1.9856 0.586805 0 0 0 -1.57492</pose>
+        <pose>1.9856 0.586805 0.149126 0 0 -1.57492</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>1.9856 0.586805 0 0 0 -1.57492</pose>
+          <pose>1.9856 0.586805 0.149126 0 0 -1.57492</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall120cm_1_clone'>
-        <pose>-1.99045 0.601482 0 0 0 -1.57492</pose>
+        <pose>-1.99045 0.601482 0.117351 0 0 -1.57492</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-1.99045 0.601482 0 0 0 -1.57492</pose>
+          <pose>-1.99045 0.601482 0.117351 0 0 -1.57492</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall120cm_2'>
-        <pose>1.98047 -0.604197 0 0 0 -1.57179</pose>
+        <pose>1.98047 -0.604197 0.146992 0 0 -1.57179</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>1.98047 -0.604197 0 0 0 -1.57179</pose>
+          <pose>1.98047 -0.604197 0.146992 0 0 -1.57179</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall120cm_2_clone'>
-        <pose>-1.99593 -0.597771 0 0 0 -1.57179</pose>
+        <pose>-1.99593 -0.597771 0.134044 0 0 -1.57179</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-1.99593 -0.597771 0 0 0 -1.57179</pose>
+          <pose>-1.99593 -0.597771 0.134044 0 0 -1.57179</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall120cm_clone'>
-        <pose>0.586554 -2.01599 0 0 -0 0</pose>
+        <pose>0.586554 -2.01599 0.145782 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>0.586554 -2.01599 0 0 -0 0</pose>
+          <pose>0.586554 -2.01599 0.145782 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall120cm_clone_clone'>
-        <pose>-0.583109 -2.01607 0 0 -0 0</pose>
+        <pose>-0.583109 -2.01607 0.148695 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-0.583109 -2.01607 0 0 -0 0</pose>
+          <pose>-0.583109 -2.01607 0.148695 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall60cm'>
-        <pose>-0.010842 1.06092 0 0 -0 0</pose>
+        <pose>-0.010842 1.06092 0.191222 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-0.010842 1.06092 0 0 -0 0</pose>
+          <pose>-0.010842 1.06092 0.191222 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall60cm_0'>
-        <pose>-0.010879 -1.06102 0 0 -0 0</pose>
+        <pose>-0.010879 -1.06102 0.157841 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-0.010879 -1.06102 0 0 -0 0</pose>
+          <pose>-0.010879 -1.06102 0.157841 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall60cm_1'>
-        <pose>1.02822 -0.005575 0 0 0 -1.5749</pose>
+        <pose>1.02822 -0.005575 0.139957 0 0 -1.5749</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>1.02822 -0.005575 0 0 0 -1.5749</pose>
+          <pose>1.02822 -0.005575 0.139957 0 0 -1.5749</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall60cm_2'>
-        <pose>-1.03905 -0.005338 0 0 0 -1.5754</pose>
+        <pose>-1.03905 -0.005338 0.080368 0 0 -1.5754</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-1.03905 -0.005338 0 0 0 -1.5754</pose>
+          <pose>-1.03905 -0.005338 0.080368 0 0 -1.5754</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm'>
-        <pose>1.5552 2.02066 0 0 -0 0</pose>
+        <pose>1.5552 2.02066 0.169115 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>1.5552 2.02066 0 0 -0 0</pose>
+          <pose>1.5552 2.02066 0.169115 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_0'>
-        <pose>1.98249 1.58938 0 0 0 -1.56713</pose>
+        <pose>1.98249 1.58938 0.14828 0 0 -1.56713</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>1.98249 1.58938 0 0 0 -1.56713</pose>
+          <pose>1.98249 1.58938 0.14828 0 0 -1.56713</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_0_clone'>
-        <pose>1.98295 -1.59434 0 0 0 -1.56713</pose>
+        <pose>1.98295 -1.59434 0.144064 0 0 -1.56713</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>1.98295 -1.59434 0 0 0 -1.56713</pose>
+          <pose>1.98295 -1.59434 0.144064 0 0 -1.56713</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_0_clone_0'>
-        <pose>-1.98751 1.58662 0 0 0 -1.56713</pose>
+        <pose>-1.98751 1.58662 0.114543 0 0 -1.56713</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-1.98751 1.58662 0 0 0 -1.56713</pose>
+          <pose>-1.98751 1.58662 0.114543 0 0 -1.56713</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_0_clone_clone'>
-        <pose>-1.99593 -1.55608 0 0 0 -1.56713</pose>
+        <pose>-1.99593 -1.55608 0.129243 0 0 -1.56713</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-1.99593 -1.55608 0 0 0 -1.56713</pose>
+          <pose>-1.99593 -1.55608 0.129243 0 0 -1.56713</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_1'>
-        <pose>0.000285 1.53768 0 0 0 -1.57309</pose>
+        <pose>0.000285 1.53768 0.186412 0 0 -1.57309</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>0.000285 1.53768 0 0 0 -1.57309</pose>
+          <pose>0.000285 1.53768 0.186412 0 0 -1.57309</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_1_clone'>
-        <pose>-0.002223 -1.5405 0 0 0 -1.57309</pose>
+        <pose>-0.002223 -1.5405 0.1346 0 0 -1.57309</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-0.002223 -1.5405 0 0 0 -1.57309</pose>
+          <pose>-0.002223 -1.5405 0.1346 0 0 -1.57309</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_1_clone_0'>
-        <pose>-1.51941 0.000855 0 0 0 -0.006993</pose>
+        <pose>-1.51941 0.000855 0.109953 0 0 -0.006993</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-1.51941 0.000855 0 0 0 -0.006993</pose>
+          <pose>-1.51941 0.000855 0.109953 0 0 -0.006993</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_1_clone_0_clone'>
-        <pose>1.50858 0.002142 0 0 0 -0.006993</pose>
+        <pose>1.50858 0.002142 0.139688 0 0 -0.006993</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>1.50858 0.002142 0 0 0 -0.006993</pose>
+          <pose>1.50858 0.002142 0.139688 0 0 -0.006993</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_clone'>
-        <pose>1.55581 -2.016 0 0 -0 0</pose>
+        <pose>1.55581 -2.016 0.148697 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>1.55581 -2.016 0 0 -0 0</pose>
+          <pose>1.55581 -2.016 0.148697 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_clone_0'>
-        <pose>-1.55915 2.0114 0 0 -0 0</pose>
+        <pose>-1.55915 2.0114 0.162005 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-1.55915 2.0114 0 0 -0 0</pose>
+          <pose>-1.55915 2.0114 0.162005 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='wall90cm_clone_clone'>
-        <pose>-1.5688 -2.01607 0 0 -0 0</pose>
+        <pose>-1.5688 -2.01607 0.131399 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-1.5688 -2.01607 0 0 -0 0</pose>
+          <pose>-1.5688 -2.01607 0.131399 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -1332,14 +1332,10 @@
       <light name='sun'>
         <pose>0 0 10 0 -0 0</pose>
       </light>
-      <include>
-      <uri>model://rubot_mecanum</uri>
-      <pose>0 0 0.05 0 0 0</pose> <!-- x y z r p y -->
-        </include>
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>-0.171046 -0.407946 7.39816 3.14159 1.57079 3.14159</pose>
+        <pose>1.11708 1.63103 6.21445 0.003258 1.57079 -3.13814</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>

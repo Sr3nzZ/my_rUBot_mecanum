@@ -23,6 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+
             'my_robot_lidar_test_exec = my_robot_control.my_robot_lidar_test:main',
             'my_robot_lidar_test_LIMO_exec = my_robot_control.my_robot_lidar_test_LIMO:main',
             'my_robot_control_exec = my_robot_control.my_robot_control:main',
@@ -31,6 +32,7 @@ setup(
             'my_robot_wallfollower_exec = my_robot_control.my_robot_wallfollower:main',
             'my_robot_wallfollower_LIMO_exec = my_robot_control.my_robot_wallfollower_LIMO:main',
             'my_robot_go2pose_exec = my_robot_control.my_robot_go2pose:main',
+            'rubot_self_control_holonomic_exec = my_robot_control.rubot_self_control_holonomic:main',
         ],
     },
 )
