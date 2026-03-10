@@ -1,0 +1,15 @@
+<launch>
+
+    <arg name="time_to_stop" default="50.0"/>
+
+    <node
+        pkg="my_robot_control"
+        exec="my_robot_wallfollower_holonomic_exec"
+        name="wall_follower_holonomic"
+        output="screen">
+
+        <param name="time_to_stop" value="$(var time_to_stop)"/>
+
+    </node>
+
+</launch>
