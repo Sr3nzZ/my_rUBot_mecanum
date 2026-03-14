@@ -16,13 +16,16 @@ class WallFollowerHolonomic(Node):
         self.declare_parameter('forward_speed', 0.20)
         self.declare_parameter('kp', 1.2)               # lateral controller gain
         self.declare_parameter('time_to_stop', 30.0)
+        self.declare_parameter('time_to_turn', 5.0)     # time to turn if wall is too long
 
         self.base_distance = float(self.get_parameter('distance_limit').value)
         self.v_forward = float(self.get_parameter('forward_speed').value)
         self.kp = float(self.get_parameter('kp').value)
         self.time_to_stop = float(self.get_parameter('time_to_stop').value)
+        self.time_to_turn = float(self.get_parameter('time_to_turn').value)
 
         self.cmd = Twist()
+        self.right_wall_front_time = 0.0  # timer to turn if wall is too long
 
         # ROS entities
         self.subscription = self.create_subscription(
@@ -97,78 +100,49 @@ class WallFollowerHolonomic(Node):
         angle_min = math.degrees(scan.angle_min)
         angle_inc = math.degrees(scan.angle_increment)
 
-        FRONT = []
-        FR_RIGHT = []
-        FR_LEFT = []
-        RIGHT = []
-        LEFT = []
-        BACK = []
-        BK_RIGHT = []
-        BK_LEFT = []
+        #--------------------------------------------------------
+        # Define regions by angle ranges
+        #--------------------------------------------------------
+        regions_def = {
+            'front': (-20, 20),
+            'fr_right': (-70, -20),
+            'fr_left': (20, 70),
+            'right': (-110, -70),
+            'left': (70, 110),
+            'bk_right': (-160, -110),
+            'bk_left': (110, 160),
+            'back': (160, 180)
+        }
 
+        # Initialize minimum distances dictionary
+        regions = {key: float('inf') for key in regions_def}
+
+        #--------------------------------------------------------
+        # Process each LIDAR measurement
+        #--------------------------------------------------------
         for i, d in enumerate(scan.ranges):
 
-            if not math.isfinite(d):
-                continue
-
-            if d < scan.range_min or d > scan.range_max:
+            if not math.isfinite(d) or d < scan.range_min or d > scan.range_max:
                 continue
 
             ang = angle_min + i * angle_inc
 
-            if -20 <= ang <= 20:
-                FRONT.append(d)
+            for region, (start, end) in regions_def.items():
+                # Negative back
+                if region == 'back' and (ang > 160 or ang < -160):
+                    regions[region] = min(regions[region], d)
+                elif start <= ang <= end:
+                    regions[region] = min(regions[region], d)
 
-            elif -70 <= ang < -20:
-                FR_RIGHT.append(d)
-
-            elif -110 <= ang < -70:
-                RIGHT.append(d)
-
-            elif  -160 <= ang < -110:
-                BK_RIGHT.append(d)
-            
-            elif abs(ang) > 160:
-                BACK.append(d)
-
-            elif 110 < ang <= 160:
-                BK_LEFT.append(d)
-
-            elif 70 <= ang <= 110:
-                LEFT.append(d)
-
-            elif 20 < ang < 70:
-                FR_LEFT.append(d)
-
-        min_front = min(FRONT) if FRONT else float('inf')
-        min_fr_right = min(FR_RIGHT) if FR_RIGHT else float('inf')
-        min_fr_left = min(FR_LEFT) if FR_LEFT else float('inf')
-        min_right = min(RIGHT) if RIGHT else float('inf')
-        min_left = min(LEFT) if LEFT else float('inf')
-        min_back = min(BACK) if BACK else float('inf')
-        min_bk_right = min(BK_RIGHT) if BK_RIGHT else float('inf')
-        min_bk_left = min(BK_LEFT) if BK_LEFT else float('inf')
-
-
-        regions = {
-            'front': min_front,
-            'fr_right': min_fr_right,
-            'fr_left': min_fr_left,
-            'right': min_right,
-            'left': min_left,
-            'back': min_back,
-            'bk_right': min_bk_right,
-            'bk_left': min_bk_left
-        }
         closest_region = min(regions, key=regions.get)
         closest_distance = regions[closest_region]
 
         twist = Twist()
         action = ""
 
-        #------------------------------------------------
+        #--------------------------------------------------------
         # Too close to wall
-        #------------------------------------------------
+        #--------------------------------------------------------
         if closest_distance < self.base_distance - 0.10:
             
             if closest_region in ['front', 'fr_right', 'fr_left']:
@@ -191,10 +165,10 @@ class WallFollowerHolonomic(Node):
                 twist.linear.y = 0.0
                 action = f"Too close to BACK → move front"
 
-        #------------------------------------------------
+        #--------------------------------------------------------
         # Obstacle detected -> react to closest one
-        #------------------------------------------------
-        if closest_distance < self.base_distance:
+        #--------------------------------------------------------
+        elif closest_distance < self.base_distance:
 
             if closest_region == "front":
                 twist.linear.x = 0.0
@@ -222,7 +196,6 @@ class WallFollowerHolonomic(Node):
                 action = f"BACK-LEFT {closest_distance:.2f} m → move BACK-RIGHT"
 
             elif closest_region == "fr_right":
-
                 twist.linear.x = self.v_forward
                 twist.linear.y = self.v_forward
                 action = f"FRONT-RIGHT {closest_distance:.2f} m → move FRONT-LEFT"
@@ -233,48 +206,59 @@ class WallFollowerHolonomic(Node):
                 action = f"FRONT-LEFT {closest_distance:.2f} m → move BACK-LEFT"
 
             elif closest_region == "right":
-
                 twist.linear.x = self.v_forward
                 twist.linear.y = 0.0
                 action = f"RIGHT {closest_distance:.2f} m → move FRONT"
-        
-        #------------------------------------------------
+
+        #--------------------------------------------------------
         # Far from wall
-        #------------------------------------------------
+        #--------------------------------------------------------
         elif math.isfinite(closest_distance):
 
             error = closest_distance - self.base_distance
 
             if closest_region in ['right', 'fr_right', 'bk_right']:
-                # Mover solo a la derecha
                 twist.linear.x = 0.0
                 twist.linear.y = -self.v_forward
                 side = 'right'
             elif closest_region in ['left', 'fr_left', 'bk_left']:
-                # Mover solo a la izquierda
                 twist.linear.x = 0.0
                 twist.linear.y = self.v_forward
                 side = 'left'
             elif closest_region == 'front':
-                # Avanzar
                 twist.linear.x = self.v_forward
                 twist.linear.y = 0.0
                 side = 'front'
             elif closest_region == 'back':
-                # Retroceder
                 twist.linear.x = -self.v_forward
                 twist.linear.y = 0.0
                 side = 'back'
 
             action = f"Too far from wall | side={side} dist={closest_distance:.2f} error={error:.2f}"
 
-        #------------------------------------------------
+        #--------------------------------------------------------
         # Search for a wall
-        #------------------------------------------------
+        #--------------------------------------------------------
         else:
             twist.linear.x = 0.0
             twist.linear.y = -self.v_forward
             action = "Searching wall → move RIGHT"
+
+        #--------------------------------------------------------
+        # Turn 90º right if right wall is too long
+        #--------------------------------------------------------
+        dt = 0.1 
+        if closest_region in ['right', 'fr_right', 'bk_right'] and regions['front'] > self.base_distance:
+            self.right_wall_front_time += dt
+            if self.right_wall_front_time >= self.time_to_turn:
+                # Turn right 90º
+                twist.linear.x = 0.0
+                twist.linear.y = 0.0
+                twist.angular.z = -math.pi / 2
+                action = f"Turning right 90° after {self.time_to_turn}s following wall"
+                self.right_wall_front_time = 0.0
+        else:
+            self.right_wall_front_time = 0.0
 
         self.cmd = twist
 

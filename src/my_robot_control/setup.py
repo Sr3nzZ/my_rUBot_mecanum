@@ -34,6 +34,7 @@ setup(
             'my_robot_go2pose_exec = my_robot_control.my_robot_go2pose:main',
             'rubot_self_control_holonomic_exec = my_robot_control.rubot_self_control_holonomic:main',
             'my_robot_wallfollower_holonomic_exec = my_robot_control.my_robot_wallfollower_holonomic:main',
+            'my_robot_wallfollower_differential_exec = my_robot_control.my_robot_wallfollower_differential:main',
         ],
     },
 )

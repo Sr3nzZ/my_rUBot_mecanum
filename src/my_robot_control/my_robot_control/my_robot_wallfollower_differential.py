@@ -95,19 +95,20 @@ class WallFollower(Node):
 
     #--------------------------------------------------------------------
     def laser_callback(self, scan):
-        """Compute control action from LIDAR and update self.cmd."""
+
         if self._shutting_down:
             return
 
         angle_min = math.degrees(scan.angle_min)
         angle_inc = math.degrees(scan.angle_increment)
 
-        FRONT       = []
-        FR_RIGHT    = []
-        RIGHT       = []
-        BACK_RIGHT  = []
+        min_front = float('inf')
+        min_fr_right = float('inf')
+        min_right = float('inf')
+        min_back_right = float('inf')
 
         for i, d in enumerate(scan.ranges):
+
             if not math.isfinite(d):
                 continue
             if d < scan.range_min or d > scan.range_max:
@@ -116,102 +117,61 @@ class WallFollower(Node):
             ang = angle_min + i * angle_inc
 
             if -20 <= ang <= 20:
-                FRONT.append(d)
-            elif -70 <= ang < -20:
-                FR_RIGHT.append(d)
-            elif -110 <= ang < -70:
-                RIGHT.append(d)
-            elif -160 <= ang < -110:
-                BACK_RIGHT.append(d)
+                min_front = min(min_front, d)
 
-        # Minimal distances
-        min_front      = min(FRONT)      if FRONT      else float('inf')
-        min_fr_right   = min(FR_RIGHT)   if FR_RIGHT   else float('inf')
-        min_right      = min(RIGHT)      if RIGHT      else float('inf')
-        min_back_right = min(BACK_RIGHT) if BACK_RIGHT else float('inf')
+            elif -70 <= ang < -20:
+                min_fr_right = min(min_fr_right, d)
+
+            elif -110 <= ang < -70:
+                min_right = min(min_right, d)
+
+            elif -160 <= ang < -110:
+                min_back_right = min(min_back_right, d)
 
         twist = Twist()
         action = ""
 
-        #----------------------------------------------------------
-        # RULE 1: FRONT obstacle → turn left
-        #----------------------------------------------------------
+        # RULE 1: FRONT obstacle
         if min_front < self.base_distance:
-            twist.linear.x = 0.0
-            twist.linear.y = 0.0
             twist.angular.z = self.v_ang * 2.0
             action = f"FRONT {min_front:.2f} m → turn LEFT"
 
-        #----------------------------------------------------------
-        # RULE 2: FRONT-RIGHT obstacle → slow + left
-        #----------------------------------------------------------
+        # RULE 2: FRONT-RIGHT obstacle
         elif min_fr_right < self.base_distance:
-            twist.linear.x = 0.0
-            twist.linear.y = 0.0
             twist.angular.z = self.v_ang * 2.0
             action = f"FRONT-RIGHT {min_fr_right:.2f} m → turn LEFT"
 
-        #----------------------------------------------------------
-        # RULE 3: RIGHT visible → control with tolerance band (no vy)
-        #----------------------------------------------------------
+        # RULE 3: RIGHT wall control
         elif math.isfinite(min_right):
-            # error > 0 → too far; error < 0 → too close
+
             error = min_right - self.base_distance
 
             if abs(error) <= self.tol:
-                # Inside band: go straight
                 twist.linear.x = self.v_lin
-                twist.linear.y = 0.0
-                twist.angular.z = 0.0
-                action = (
-                    f"RIGHT ~OK ({min_right:.2f} m, target "
-                    f"{self.base_distance:.2f}±{self.tol:.2f}) → STRAIGHT"
-                )
+                action = f"RIGHT OK ({min_right:.2f}) → STRAIGHT"
 
             elif error < 0:
-                # Too close to right wall → slow forward + stronger left turn
                 twist.linear.x = self.v_lin * 0.5
-                twist.linear.y = 0.0
                 twist.angular.z = self.v_ang * 2.0
-                action = (
-                    f"RIGHT too CLOSE ({min_right:.2f} m < "
-                    f"{self.base_distance:.2f}-{self.tol:.2f}) → "
-                    f"forward + strong LEFT turn"
-                )
+                action = f"RIGHT too CLOSE ({min_right:.2f}) → LEFT"
 
             else:
-                # Too far from right wall → slow forward + stronger right turn
                 twist.linear.x = self.v_lin * 0.5
-                twist.linear.y = 0.0
                 twist.angular.z = -self.v_ang * 2.0
-                action = (
-                    f"RIGHT too FAR ({min_right:.2f} m > "
-                    f"{self.base_distance:.2f}+{self.tol:.2f}) → "
-                    f"forward + strong RIGHT turn"
-                )
+                action = f"RIGHT too FAR ({min_right:.2f}) → RIGHT"
 
-        #----------------------------------------------------------
-        # RULE 4: BACK-RIGHT → only if it is the most relevant wall
-        #----------------------------------------------------------
+        # RULE 4: BACK-RIGHT recovery
         elif math.isfinite(min_back_right) and (
             not math.isfinite(min_right) or min_back_right <= min_right
         ):
             twist.linear.x = self.v_lin * 0.1
-            twist.linear.y = 0.0
             twist.angular.z = -2.0 * self.v_ang
-            action = (
-                f"BACK-RIGHT {min_back_right:.2f} m → "
-                f"very slow + STRONG RIGHT turn (2*w)"
-            )
+            action = f"BACK-RIGHT {min_back_right:.2f} → strong RIGHT"
 
-        # if nothing is visible, twist remains zero -> robot stops
-
-        # Update last commanded twist (periodic timer will publish it)
         self.cmd = twist
 
-        # Logging (only on change)
         if action != self._last_action_logged:
-            self.get_logger().info(action if action else "No action (stopped).")
+            self.get_logger().info(action if action else "No action (stopped)")
             self._last_action_logged = action
 
         self._state_action = action if action else "Stopped (no wall detected)"
