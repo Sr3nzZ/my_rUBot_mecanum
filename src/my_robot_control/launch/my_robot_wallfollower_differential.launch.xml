@@ -1,0 +1,29 @@
+<launch>
+        <!-- ========================
+         Launch Arguments
+         ======================== -->
+    <arg name="distance_limit"  default="0.35" />
+    <arg name="tolerance"       default="0.05" />
+    <arg name="forward_speed"   default="0.20" />
+    <arg name="turn_speed"      default="0.3" />
+    <arg name="time_to_stop"    default="20.0" />
+
+        <!-- ========================
+         Nodes
+         ======================== -->
+
+    <node
+        pkg="my_robot_control"
+        exec="my_robot_wallfollower_differential_exec"
+        name="wall_follower_differential"
+        output="screen">
+
+        <param name="distance_limit" value="$(var distance_limit)"/>
+        <param name="tolerance" value="$(var tolerance)"/>
+        <param name="forward_speed" value="$(var forward_speed)"/>
+        <param name="turn_speed" value="$(var turn_speed)"/>
+        <param name="time_to_stop" value="$(var time_to_stop)"/>
+
+    </node>
+
+</launch>

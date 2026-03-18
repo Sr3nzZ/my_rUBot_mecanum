@@ -13,7 +13,7 @@ class WallFollowerHolonomic(Node):
 
         # Parameters
         self.declare_parameter('distance_limit', 0.35)   # desired wall distance
-        self.declare_parameter('forward_speed', 0.20)
+        self.declare_parameter('forward_speed', 0.10)
         self.declare_parameter('kp', 1.2)               # lateral controller gain
         self.declare_parameter('time_to_stop', 30.0)
         self.declare_parameter('time_to_turn', 5.0)     # time to turn if wall is too long
@@ -104,18 +104,18 @@ class WallFollowerHolonomic(Node):
         # Define regions by angle ranges
         #--------------------------------------------------------
         regions_def = {
-            'front': (-20, 20),
-            'fr_right': (-70, -20),
-            'fr_left': (20, 70),
-            'right': (-110, -70),
-            'left': (70, 110),
+            'front': (-40, 40),
+            'fr_right': (-60, -40),
+            'fr_left': (40, 60),
+            'right': (-110, -60),
+            'left': (60, 110),
             'bk_right': (-160, -110),
             'bk_left': (110, 160),
             'back': (160, 180)
         }
 
         # Initialize minimum distances dictionary
-        regions = {key: float('inf') for key in regions_def}
+        regions = {key: {'dist': float('inf'), 'angle': 0.0} for key in regions_def}
 
         #--------------------------------------------------------
         # Process each LIDAR measurement
@@ -130,15 +130,22 @@ class WallFollowerHolonomic(Node):
             for region, (start, end) in regions_def.items():
                 # Negative back
                 if region == 'back' and (ang > 160 or ang < -160):
-                    regions[region] = min(regions[region], d)
+                    if d < regions[region]['dist']:
+                        regions[region]['dist'] = d
+                        regions[region]['angle'] = ang
                 elif start <= ang <= end:
-                    regions[region] = min(regions[region], d)
+                    if d < regions[region]['dist']:
+                        regions[region]['dist'] = d
+                        regions[region]['angle'] = ang
 
-        closest_region = min(regions, key=regions.get)
-        closest_distance = regions[closest_region]
+        closest_region = min(regions, key=lambda x: regions[x]['dist'])
+        closest_distance = regions[closest_region]['dist']
+        self.closest_angle = regions[closest_region]['angle']
+        
 
         twist = Twist()
         action = ""
+
 
         #--------------------------------------------------------
         # Too close to wall
@@ -206,6 +213,9 @@ class WallFollowerHolonomic(Node):
                 action = f"FRONT-LEFT {closest_distance:.2f} m → move BACK-LEFT"
 
             elif closest_region == "right":
+                if(self.closest_angle != -90):
+                    action = f"RIGHT {closest_distance:.2f} m at angle {self.closest_angle:.2f}° → adjust angle"
+                    twist.angular.z = self.kp * math.radians(self.closest_angle + 90)
                 twist.linear.x = self.v_forward
                 twist.linear.y = 0.0
                 action = f"RIGHT {closest_distance:.2f} m → move FRONT"
@@ -248,7 +258,7 @@ class WallFollowerHolonomic(Node):
         # Turn 90º right if right wall is too long
         #--------------------------------------------------------
         dt = 0.1 
-        if closest_region in ['right', 'fr_right', 'bk_right'] and regions['front'] > self.base_distance:
+        if closest_region in ['right', 'fr_right', 'bk_right'] and regions['front']['dist'] > self.base_distance:
             self.right_wall_front_time += dt
             if self.right_wall_front_time >= self.time_to_turn:
                 # Turn right 90º

@@ -11,7 +11,7 @@ class WallFollower(Node):
         super().__init__('wall_follower_node')
 
         # Parameters
-        self.declare_parameter('distance_limit', 0.5)    # desired distance to right wall
+        self.declare_parameter('distance_limit', 0.35)    # desired distance to right wall
         self.declare_parameter('forward_speed', 0.20)    # linear speed
         self.declare_parameter('turn_speed', 0.40)       # angular speed
         self.declare_parameter('time_to_stop', 30.0)     # auto-stop
@@ -142,7 +142,7 @@ class WallFollower(Node):
             action = f"FRONT-RIGHT {min_fr_right:.2f} m → turn LEFT"
 
         # RULE 3: RIGHT wall control
-        elif math.isfinite(min_right):
+        elif math.isfinite(min_right) and (not math.isfinite(min_back_right) or min_right <= min_back_right):
 
             error = min_right - self.base_distance
 
@@ -152,12 +152,14 @@ class WallFollower(Node):
 
             elif error < 0:
                 twist.linear.x = self.v_lin * 0.5
-                twist.angular.z = self.v_ang * 2.0
+                twist.linear.y = self.v_lin * 0.2
+                twist.angular.z = self.v_ang * 1.0
                 action = f"RIGHT too CLOSE ({min_right:.2f}) → LEFT"
 
             else:
                 twist.linear.x = self.v_lin * 0.5
-                twist.angular.z = -self.v_ang * 2.0
+                twist.linear.y = -self.v_lin * 0.2
+                twist.angular.z = -self.v_ang * 1.0
                 action = f"RIGHT too FAR ({min_right:.2f}) → RIGHT"
 
         # RULE 4: BACK-RIGHT recovery
