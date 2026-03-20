@@ -146,6 +146,8 @@ class WallFollowerHolonomic(Node):
         twist = Twist()
         action = ""
 
+        twist.linear.z = 0.0
+
 
         #--------------------------------------------------------
         # Too close to wall
@@ -178,19 +180,46 @@ class WallFollowerHolonomic(Node):
         elif closest_distance < self.base_distance:
 
             if closest_region == "front":
+                error = self.closest_angle - 0
+                if error > 180:
+                    error -= 360
+                elif error < -180:
+                    error += 360
+                if abs(error) <= 15:
+                    twist.angular.z = self.kp * math.radians(error)
+                    action = f"FRONT {closest_distance:.2f}m → turn {'left' if error > 0 else 'right'} {abs(error):.1f}°"
+                else:
+                    action = f"FRONT {closest_distance:.2f}m -> Move left"
                 twist.linear.x = 0.0
                 twist.linear.y = self.v_forward
-                action = f"FRONT {closest_distance:.2f}m -> Move left"
 
             elif closest_region == "left":
+                error = self.closest_angle - 90
+                if error > 180:
+                    error -= 360
+                elif error < -180:
+                    error += 360
+                if abs(error) <= 15:
+                    twist.angular.z = self.kp * math.radians(error)
+                    action = f"LEFT {closest_distance:.2f} m → turn {'left' if error > 0 else 'right'} {abs(error):.1f}°"
+                else:
+                    action = f"LEFT {closest_distance:.2f} m → move BACK"
                 twist.linear.x = -self.v_forward
                 twist.linear.y = 0.0
-                action = f"LEFT {closest_distance:.2f} m → move BACK"
 
             elif closest_region == "back":
+                error = self.closest_angle - 180
+                if error > 180:
+                    error -= 360
+                elif error < -180:
+                    error += 360
+                if abs(error) <= 15:
+                    twist.angular.z = self.kp * math.radians(error)
+                    action = f"BACK {closest_distance:.2f} m → turn {'left' if error > 0 else 'right'} {abs(error):.1f}°"
+                else:
+                    action = f"BACK {closest_distance:.2f} m → move RIGHT"
                 twist.linear.x = 0.0
                 twist.linear.y = -self.v_forward
-                action = f"BACK {closest_distance:.2f} m → move RIGHT"
 
             elif closest_region == "bk_right":
                 twist.linear.x = self.v_forward
@@ -213,12 +242,18 @@ class WallFollowerHolonomic(Node):
                 action = f"FRONT-LEFT {closest_distance:.2f} m → move BACK-LEFT"
 
             elif closest_region == "right":
-                if(self.closest_angle != -90):
-                    action = f"RIGHT {closest_distance:.2f} m at angle {self.closest_angle:.2f}° → adjust angle"
-                    twist.angular.z = self.kp * math.radians(self.closest_angle + 90)
+                error = self.closest_angle - (-90)
+                if error > 180:
+                    error -= 360
+                elif error < -180:
+                    error += 360
+                if abs(error) <= 15:
+                    twist.angular.z = self.kp * math.radians(error)
+                    action = f"RIGHT {closest_distance:.2f} m → turn {'left' if error > 0 else 'right'} {abs(error):.1f}°"
+                else:
+                    action = f"RIGHT {closest_distance:.2f} m → move FRONT"
                 twist.linear.x = self.v_forward
                 twist.linear.y = 0.0
-                action = f"RIGHT {closest_distance:.2f} m → move FRONT"
 
         #--------------------------------------------------------
         # Far from wall
