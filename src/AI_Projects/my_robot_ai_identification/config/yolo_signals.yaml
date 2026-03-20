@@ -35,7 +35,7 @@ object_detection:
     #   If YOLO detects a sign AND the robot is within "front_distance"
     #   of the corresponding sign position, then the robot reacts.
     #
-    sign_positions: |
+    sign_positions:
       #STOP:      [2.30, -1.00]   # STOP sign position (x, y)
       #Ceda:      [5.00,  0.20]   # Yield (Ceda el paso)
       #Derecha:   [7.10,  1.40]   # Turn right
