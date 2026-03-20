@@ -20,7 +20,25 @@ pip3 uninstall numpy
 pip3 install "numpy<2.0"
 ````
 
-For simulation, you won't be able to use TheConstruct environment. You have to use your Docker container ROS2 custom environment.
+For simulation, you won't be able to use TheConstruct environment. You have to use your **Docker container ROS2 custom environment**:
+- Use VScode and clone your project repository
+- Edit `docker-compose.yaml` from `network_config/humble`
+- Comment or delete the environment variable: `CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml`
+- Open a terminal in `network_config/humble` and write:
+    ````bash
+    docker compose up
+    ````
+- Open a VScode window attached to the created container
+- Clone your project repository
+- open `.bashrc` file and add:
+    ````xml
+    source /opt/ros/humble/setup.bash
+    source /root/my_rUBot_mecanum/install/setup.bash
+    export GAZEBO_MODEL_PATH=/root/my_rUBot_mecanum/src/my_robot_bringup/models:$GAZEBO_MODEL_PATH
+    cd /root/my_rUBot_mecanum
+    ````
+You have now your custom docker ROS2 workspace ready!
+
 
 ## **2. Robot Navigation**
 
@@ -91,7 +109,7 @@ We have to create a new `custom_nav2` node that can integrate the new waypoint i
 **Software** test in Gazebo: 
 - Use the ``rubot_detection_yolo.py`` after the navigation node is launched.
     ````shell
-    ros2 run my_robot_ai_identification rubot_detection_yolo_exec
+    ros2 launch my_robot_ai_identification rubot_detection_yolo.launch.py use_sim_time:=True
     ````
     > You have to verify the model path to '/home/user/ROS2_rUBot_mecanum_ws/src/AI_Projects/my_robot_ai_identification/models/yolov8n_custom.pt
 
