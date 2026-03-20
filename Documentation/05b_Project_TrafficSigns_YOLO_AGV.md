@@ -20,6 +20,8 @@ pip3 uninstall numpy
 pip3 install "numpy<2.0"
 ````
 
+For simulation, you won't be able to use TheConstruct environment. You have to use your Docker container ROS2 custom environment.
+
 ## **2. Robot Navigation**
 
 To proceed with the signal identification we first bringup the robot and navigate from initial pose to final target.
