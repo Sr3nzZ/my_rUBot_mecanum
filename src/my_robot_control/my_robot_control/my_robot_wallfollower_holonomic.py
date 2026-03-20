@@ -26,6 +26,9 @@ class WallFollowerHolonomic(Node):
 
         self.cmd = Twist()
         self.right_wall_front_time = 0.0  # timer to turn if wall is too long
+        self.align_to_right_wall = False
+        self.right_align_speed = 0.5  # rad/s rotation speed to align right
+        self.last_region = None
 
         # ROS entities
         self.subscription = self.create_subscription(
@@ -147,6 +150,38 @@ class WallFollowerHolonomic(Node):
         action = ""
 
         twist.linear.z = 0.0
+
+        # Si estamos en modo de alineación derecha, rotar hasta que la región más cercana sea exactamente "right"
+        if self.align_to_right_wall:
+            twist.linear.x = 0.0
+            twist.linear.y = 0.0
+            
+            error_align = self.closest_angle - (-90)
+            if error_align > 180:
+                error_align -= 360
+            elif error_align < -180:
+                error_align += 360
+            
+            # Rotar en la dirección correcta (más corta)
+            if error_align > 0:
+                twist.angular.z = self.right_align_speed 
+            else:
+                twist.angular.z = -self.right_align_speed  
+            
+            action = f"Aligning right wall: rotating toward 90° {self.closest_angle:.1f}° error={error_align:.1f}°"
+
+            if -80 >= self.closest_angle >= -100:
+                self.align_to_right_wall = False
+                self.right_wall_front_time = 0.0
+                twist.angular.z = 0.0
+                action = "Right wall is now closest; alignment done"
+
+            self.cmd = twist
+            if action != self._last_action_logged:
+                self.get_logger().info(action)
+                self._last_action_logged = action
+            self._state_action = action
+            return
 
 
         #--------------------------------------------------------
@@ -290,20 +325,20 @@ class WallFollowerHolonomic(Node):
             action = "Searching wall → move RIGHT"
 
         #--------------------------------------------------------
-        # Turn 90º right if right wall is too long
+        # Right wall long-run timeout: start right align mode
         #--------------------------------------------------------
         dt = 0.1 
-        if closest_region in ['right', 'fr_right', 'bk_right'] and regions['front']['dist'] > self.base_distance:
+        if closest_region not in ['right']:
+            if(self.last_region != closest_region):
+                self.right_wall_front_time = 0.0
             self.right_wall_front_time += dt
             if self.right_wall_front_time >= self.time_to_turn:
-                # Turn right 90º
-                twist.linear.x = 0.0
-                twist.linear.y = 0.0
-                twist.angular.z = -math.pi / 2
-                action = f"Turning right 90° after {self.time_to_turn}s following wall"
+                self.align_to_right_wall = True
                 self.right_wall_front_time = 0.0
+                action = f"Timeout reached; align mode ON (rotate right until right wall is closest)"
         else:
             self.right_wall_front_time = 0.0
+        self.last_region = closest_region
 
         self.cmd = twist
 
