@@ -23,7 +23,10 @@ pip3 install "numpy<2.0"
 For simulation, you won't be able to use TheConstruct environment. You have to use your **Docker container ROS2 custom environment**:
 - Use VScode and clone your project repository
 - Edit `docker-compose.yaml` from `network_config/humble`
-- Comment or delete the environment variable: `CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml`
+- Comment or delete the environment variables: 
+    - ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
+    - ROS_STATIC_PEERS=192.168.1.54
+    - CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml
 - Open a terminal in `network_config/humble` and write:
     ````bash
     docker compose up

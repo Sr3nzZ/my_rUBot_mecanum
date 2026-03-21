@@ -9,3 +9,6 @@ object_detection:
     sign_specs:
       - "STOP,0.5,-0.5"
       #- "Derecha,1.2,0.3"
+      #- "Ceda,5.00,0.20"   # Yield (Ceda el paso)
+      #- "Izquierda,2.1,0.40"   # Turn left
+      #- "Prohibido,9.00,0.00"   # No entry / forbidden
