@@ -27,11 +27,17 @@ For simulation, you won't be able to use TheConstruct environment. You have to u
     - ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
     - ROS_STATIC_PEERS=192.168.1.54
     - CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml
+    - Choose DISPLAY:
+        - DISPLAY=${DISPLAY} #Ubuntu
+        - DISPLAY=host.docker.internal:0.0 #Windows+xlaunch (vcxsrv) 
 - Verify in PC-win `entrypoint_pc.sh` has `LF` NOT `CRLF`
 - Open a terminal in `network_config/humble` and write:
     ````bash
     docker compose up
     ````
+- Install for graphical interface:
+    - For Ubuntu: https://mac.getutm.app/
+    - For Windows: https://sourceforge.net/projects/vcxsrv/files/latest/download
 - Open a VScode window attached to the created container
 - Clone your project repository
 - open `.bashrc` file and add:
