@@ -27,6 +27,7 @@ For simulation, you won't be able to use TheConstruct environment. You have to u
     - ROS_AUTOMATIC_DISCOVERY_RANGE=OFF
     - ROS_STATIC_PEERS=192.168.1.54
     - CYCLONEDDS_URI=file:///config/cyclonedds_pc.xml
+- Verify in PC-win `entrypoint_pc.sh` has `LF` NOT `CRLF`
 - Open a terminal in `network_config/humble` and write:
     ````bash
     docker compose up
