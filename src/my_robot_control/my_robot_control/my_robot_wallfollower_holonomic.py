@@ -215,7 +215,7 @@ class WallFollowerHolonomic(Node):
         #--------------------------------------------------------
         elif closest_distance < self.base_distance:
 
-            if closest_region == "front" and not self.flag_left:
+            if closest_region == "front" and not self.left_flag:
                 error = self.closest_angle - 0
                 if error > 180:
                     error -= 360
@@ -245,7 +245,7 @@ class WallFollowerHolonomic(Node):
                 #twist.linear.x = -self.v_forward
                 #twist.linear.y = 0.0
 
-            elif closest_region == "back" and not self.flag_left:
+            elif closest_region == "back" and not self.left_flag:
                 error = self.closest_angle - 180
                 if error > 180:
                     error -= 360
@@ -259,28 +259,27 @@ class WallFollowerHolonomic(Node):
                 twist.linear.x = 0.0
                 twist.linear.y = -self.v_forward
 
-            elif closest_region == "bk_right" and not self.flag_left:
+            elif closest_region == "bk_right" and not self.left_flag:
                 twist.linear.x = self.v_forward
                 twist.linear.y = -self.v_forward
                 action = f"BACK-RIGHT {closest_distance:.2f} m → move FRONT-RIGHT"
 
-            elif closest_region == "bk_left" and not self.flag_left:
+            elif closest_region == "bk_left" and not self.left_flag:
                 twist.linear.x = -self.v_forward
                 twist.linear.y = -self.v_forward
                 action = f"BACK-LEFT {closest_distance:.2f} m → move BACK-RIGHT"
 
-            elif closest_region == "fr_right" and not self.flag_left:
+            elif closest_region == "fr_right" and not self.left_flag:
                 twist.linear.x = self.v_forward
                 twist.linear.y = self.v_forward
                 action = f"FRONT-RIGHT {closest_distance:.2f} m → move FRONT-LEFT"
 
-            elif closest_region == "fr_left" and not self.flag_left:
+            elif closest_region == "fr_left" and not self.left_flag:
                 twist.linear.x = -self.v_forward
                 twist.linear.y = self.v_forward
                 action = f"FRONT-LEFT {closest_distance:.2f} m → move BACK-LEFT"
 
             elif closest_region == "right":
-                self.left_flag = False
                 twist.angular.z = 0.0
                 error = self.closest_angle - (-90)
                 if error > 180:
@@ -288,6 +287,7 @@ class WallFollowerHolonomic(Node):
                 elif error < -180:
                     error += 360
                 if abs(error) <= 15:
+                    self.left_flag = False
                     twist.angular.z = self.kp * math.radians(error)
                     action = f"RIGHT {closest_distance:.2f} m → turn {'left' if error > 0 else 'right'} {abs(error):.1f}°"
                 else:
