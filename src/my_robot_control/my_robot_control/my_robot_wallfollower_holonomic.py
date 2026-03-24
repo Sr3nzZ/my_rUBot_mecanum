@@ -29,6 +29,7 @@ class WallFollowerHolonomic(Node):
         self.align_to_right_wall = False
         self.right_align_speed = 0.5  # rad/s rotation speed to align right
         self.last_region = None
+        self.left_flag = False
 
         # ROS entities
         self.subscription = self.create_subscription(
@@ -214,7 +215,7 @@ class WallFollowerHolonomic(Node):
         #--------------------------------------------------------
         elif closest_distance < self.base_distance:
 
-            if closest_region == "front":
+            if closest_region == "front" and not self.flag_left:
                 error = self.closest_angle - 0
                 if error > 180:
                     error -= 360
@@ -229,20 +230,22 @@ class WallFollowerHolonomic(Node):
                 twist.linear.y = self.v_forward
 
             elif closest_region == "left":
-                error = self.closest_angle - 90
-                if error > 180:
-                    error -= 360
-                elif error < -180:
-                    error += 360
-                if abs(error) <= 15:
-                    twist.angular.z = self.kp * math.radians(error)
-                    action = f"LEFT {closest_distance:.2f} m → turn {'left' if error > 0 else 'right'} {abs(error):.1f}°"
-                else:
-                    action = f"LEFT {closest_distance:.2f} m → move BACK"
-                twist.linear.x = -self.v_forward
-                twist.linear.y = 0.0
+                self.left_flag = True
+                
+                #error = self.closest_angle - 90
+                #if error > 180:
+                    #error -= 360
+                #elif error < -180:
+                    #error += 360
+                #if abs(error) <= 15:
+                    #twist.angular.z = self.kp * math.radians(error)
+                    #action = f"LEFT {closest_distance:.2f} m → turn {'left' if error > 0 else 'right'} {abs(error):.1f}°"
+                #else:
+                    #action = f"LEFT {closest_distance:.2f} m → move BACK"
+                #twist.linear.x = -self.v_forward
+                #twist.linear.y = 0.0
 
-            elif closest_region == "back":
+            elif closest_region == "back" and not self.flag_left:
                 error = self.closest_angle - 180
                 if error > 180:
                     error -= 360
@@ -256,27 +259,29 @@ class WallFollowerHolonomic(Node):
                 twist.linear.x = 0.0
                 twist.linear.y = -self.v_forward
 
-            elif closest_region == "bk_right":
+            elif closest_region == "bk_right" and not self.flag_left:
                 twist.linear.x = self.v_forward
                 twist.linear.y = -self.v_forward
                 action = f"BACK-RIGHT {closest_distance:.2f} m → move FRONT-RIGHT"
 
-            elif closest_region == "bk_left":
+            elif closest_region == "bk_left" and not self.flag_left:
                 twist.linear.x = -self.v_forward
                 twist.linear.y = -self.v_forward
                 action = f"BACK-LEFT {closest_distance:.2f} m → move BACK-RIGHT"
 
-            elif closest_region == "fr_right":
+            elif closest_region == "fr_right" and not self.flag_left:
                 twist.linear.x = self.v_forward
                 twist.linear.y = self.v_forward
                 action = f"FRONT-RIGHT {closest_distance:.2f} m → move FRONT-LEFT"
 
-            elif closest_region == "fr_left":
+            elif closest_region == "fr_left" and not self.flag_left:
                 twist.linear.x = -self.v_forward
                 twist.linear.y = self.v_forward
                 action = f"FRONT-LEFT {closest_distance:.2f} m → move BACK-LEFT"
 
             elif closest_region == "right":
+                self.left_flag = False
+                twist.angular.z = 0.0
                 error = self.closest_angle - (-90)
                 if error > 180:
                     error -= 360
@@ -339,6 +344,24 @@ class WallFollowerHolonomic(Node):
         else:
             self.right_wall_front_time = 0.0
         self.last_region = closest_region
+
+
+        if(self.left_flag and closest_region != 'right'):
+            action = f"Align wall to right"
+            twist.linear.x = 0.0
+            twist.linear.y = 0.0
+            
+            error_left_wall = self.closest_angle - (-90)
+            if error_left_wall > 180:
+                error_left_wall -= 360
+            elif error_left_wall < -180:
+                error_left_wall += 360
+                
+            # Rotar en la dirección correcta (más corta)
+            if error_left_wall > 0:
+                twist.angular.z = self.right_align_speed 
+            else:
+                twist.angular.z = -self.right_align_speed  
 
         self.cmd = twist
 
