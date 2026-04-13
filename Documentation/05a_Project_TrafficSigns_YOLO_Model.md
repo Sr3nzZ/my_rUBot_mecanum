@@ -61,40 +61,28 @@ To properly train a model we will use "roboflow":
 ## **4. Signal prediction**
 
 In TheConstruct environment
-- Train the model on pre-trained model (i.e. yolov8n.pt) with the custom dataset obtained from Roboflow (i.e. data.yaml). The suggested value for "epochs=100" to obtain a more accurate model. This program performs:
+- `1_train_model.py`: Train the model on pre-trained model (i.e. yolov8n.pt) with the custom dataset obtained from Roboflow (i.e. data.yaml). The suggested value for "epochs=100" to obtain a more accurate model. This program performs:
     - Generates a model "yolo8n_custom.pt"
     - Evaluates the model performances
-    - makes a prediction for a speciffic test image in the corresponding folder from zip file
-    - save the model to be used in the next section for real time prediction
-
+    
     ````python
-    # This script demonstrates how to train a YOLOv8n model using the Ultralytics YOLO library.
+    # train_model.py
     from ultralytics import YOLO
 
-    # Load a pretrained YOLO8n model
-    model = YOLO("yolov8n.pt")  # Load the YOLOv8n model
+    model = YOLO("yolov8n.pt")
 
-    # Train the model on the our dataset for 100 epochs
-    train_results = model.train(
-        data="data.yaml",  # Path to dataset configuration file (Roboflow dataset)
-        epochs=20,  # Number of training epochs
-        imgsz=640,  # Image size for training
-        device="cpu",  # Device to run on (e.g., 'cpu', 0, [0,1,2,3])
+    model.train(
+        data="data.yaml",
+        epochs=30,
+        imgsz=640,
+        device="cpu"
     )
 
-    # Evaluate the model's performance on the validation set
-    metrics = model.val()
-
-    # Perform object detection on an image
-    results = model("test/images/prohibido.jpg")  # Predict on an image from test set
-    results[0].show()  # Display results
-
-    # Save the model's weights
-    model.save("yolov8n_custom.pt")  # Save the model with custom weights
-    # Export the model to ONNX format for deployment
-    path = model.export(format="onnx")  # Returns the path to the exported model
+    # After training, use:
+    # runs/detect/train/weights/best.pt
+    # and copy the best.pt file to a /model folder with a proper name
     ````
-- Make prediction using the saved custom model (i.e. yolov8n_custom.pt)
+- `2_detect_image.py`: Make prediction on image file using the saved custom model (i.e. yolov8n_custom.pt)
 
     ````python
     # This script demonstrates how to train a YOLOv8n model using the Ultralytics YOLO library.
@@ -105,44 +93,45 @@ In TheConstruct environment
 
     # Perform object detection on an image
     results = model("test/images/prohibido.jpg")  # Predict on an image from test set
+    #results = model("Foto_.jpg")
+    #results = model("Foto_2.jpg")
     results[0].show()  # Display results
     ````
-- You can make a prediction of the signal that the robot find on its path to target pose:
-    - for 1 test image (use ``picture_prediction_yolo.py``). 
-    - for video images from robot camera when moving to target (use ``rt_prediction_yolo.py``)
-- **Software** test in Gazebo: 
-    - Use the ``rt_prediction_yolo.py`` after the navigation node is launched.
-        ````shell
-        ros2 run my_robot_ai_identification rt_prediction_yolo_exec
-        ````
-        > You have to change the model path to '/home/user/ROS2_rUBot_mecanum_ws/src/AI_Projects/my_robot_ai_identification/models/yolov8n_custom.pt
+- `3_detect_video.py`: Make prediction on image file using the saved custom model (i.e. yolov8n_custom.pt)
 
-    - To see the image with prediction on RVIZ2, select a new Image message on topic /inference_result
+### **Software** test in Gazebo: 
+Use the ``rt_prediction_yolo.py`` after the navigation node is launched.
+````shell
+ros2 run my_robot_ai_identification rt_prediction_yolo_exec
+````
+> You have to change the model path to `/home/user/ROS2_rUBot_mecanum_ws/src/AI_Projects/my_robot_ai_identification/models/yolov8n_custom.pt`
+
+To see the image with prediction on RVIZ2, select a new Image message on topic /inference_result
     ![](./Images/07_Yolo/11_prediction_sw.png)
     ![](./Images/07_Yolo/11_prediction_sw2.png)
 
-- **Hardware** Test in real LIMO robot:
-    - You have to install on the Limo robot container:
-        ````shell
-        apt update
-        apt install python3-pip
-        pip install ultralytics
-        # needed numpy version compatible
-        pip3 uninstall numpy
-        pip3 install "numpy<2.0"
-        #
-        apt install git
-        git clone https://github.com/manelpuig/ROS2_rUBot_mecanum_ws.git
-        source /opt/ros/humble/setup.bash
-        apt install python3-colcon-common-extensions
-        apt install build-essential
-        colcon build
-        source install/setup.bash
-        ros2 run my_robot_ai_identification rt_prediction_yolo_exec
-        ````
+### **Hardware** Test in real LIMO robot:
+You have to install on the Limo robot container:
+````shell
+apt update
+apt install python3-pip
+pip install ultralytics
+# needed numpy version compatible
+pip3 uninstall numpy
+pip3 install "numpy<2.0"
+#
+apt install git
+git clone https://github.com/manelpuig/ROS2_rUBot_mecanum_ws.git
+source /opt/ros/humble/setup.bash
+apt install python3-colcon-common-extensions
+apt install build-essential
+colcon build
+source install/setup.bash
+ros2 run my_robot_ai_identification rt_prediction_yolo_exec
+````
     
-    - Run The real-time prediction:
-        ````shell
-        ros2 run my_robot_ai_identification rt_prediction_yolo_exec
-        ````
-        > You have to change the model path to '/root/ROS2_rUBot_mecanum_ws/src/AI_Projects/my_robot_ai_identification/models/yolov8n_custom.pt
+Run The real-time prediction:
+````shell
+ros2 run my_robot_ai_identification rt_prediction_yolo_exec
+````
+> You have to change the model path to '/root/ROS2_rUBot_mecanum_ws/src/AI_Projects/my_robot_ai_identification/models/yolov8n_custom.pt
