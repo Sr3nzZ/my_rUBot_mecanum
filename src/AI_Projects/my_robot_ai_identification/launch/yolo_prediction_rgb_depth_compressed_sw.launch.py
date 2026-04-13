@@ -30,7 +30,7 @@ def generate_launch_description():
 
     yolo_node = Node(
         package='my_robot_ai_identification',
-        executable='yolo_prediction_compressed_sw',
+        executable='yolo_prediction_rgb_depth_compressed_sw_exec',
         name='yolo_prediction_node',
         output='screen',
         parameters=[{
