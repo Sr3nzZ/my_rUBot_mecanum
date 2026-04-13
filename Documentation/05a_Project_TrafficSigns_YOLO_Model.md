@@ -34,13 +34,25 @@ To properly train a model we will use "roboflow":
 - There is a short Roboflow tutorial video: https://blog.roboflow.com/getting-started-with-roboflow/
 
 - Create a project in our created "Workspace":
-    - Select Projects and choose ``new project``
+    - Select Projects and choose ``new project``, choose a name and click on `Continue with Public`
         ![](./Images/07_Yolo/02_Object_detection1.jpg)
-    - Upload all the images on this project (stop, right, left, give, etc)
+    - Select `Use Traditional Model Builder Instead` to have whole control of YOLO model in Robotic projects
+    - You have 5 different classes: Stop, Right, Left, Give, Forbidden
+    - You will have in your local PC one folder per Class. To take pictures with the robot camera and save this pictures in a local folder, you have to run a custom node, that:
+        - subscribes to the `/image_raw` topic
+        - takes one image each x seconds
+        - save each image in a local folder with the format. `folder_name_001.jpg`, etc
+        ````python
+        python3 0_capture_topic_images0.py --ros-args \
+        -p image_topic:=/image_raw \
+        -p output_folder:=handshake \
+        -p capture_interval:=2.0
+        ````
+    -Choose `Select Folder` to upload pictures from a local folder. Upload all the images on this project.
         ![](./Images/07_Yolo/04_Project2.png)
     - Type ``save&continue`` and ``start labeling`` to label all traffic signs pictures
     - You can assign some pictures to different Invited team members
-    - Select ``start anotating``
+    - Select ``start anotating``. You will do it for each Class.
         ![](./Images/07_Yolo/05_Label.png)
     - If you make an error, type ``layers`` 3point menu and change class
         ![](./Images/07_Yolo/06_Label_error.png)
@@ -90,17 +102,23 @@ In TheConstruct environment
 
     # Load a pretrained YOLO8n model
     model = YOLO("yolov8n_custom.pt")  # Load the YOLOv8n model
-
+    print(model.names)
     # Perform object detection on an image
     results = model("test/images/prohibido.jpg")  # Predict on an image from test set
     #results = model("Foto_.jpg")
     #results = model("Foto_2.jpg")
     results[0].show()  # Display results
     ````
+    > `yolov8n_custom_en.pt` has label names in english
 - `3_detect_video.py`: Make prediction on image file using the saved custom model (i.e. yolov8n_custom.pt)
 
 ### **Software** test in Gazebo: 
-Use the ``rt_prediction_yolo.py`` after the navigation node is launched.
+
+Bringup the robot in simulation:
+````shell
+ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml use_sim_time:=true x0:=0.5 y0:=-1.5 yaw0:=1.57 robot:=rubot/rubot_mecanum.urdf custom_world:=square4m_sign.world
+````
+Use the ``yolo_prediction_compressed_sw.py`` after the navigation node is launched.
 ````shell
 ros2 run my_robot_ai_identification rt_prediction_yolo_exec
 ````

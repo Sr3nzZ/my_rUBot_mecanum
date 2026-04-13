@@ -1,12 +1,14 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 def generate_launch_description():
     image_width = LaunchConfiguration('image_width')
     image_height = LaunchConfiguration('image_height')
     video_device = LaunchConfiguration('video_device')
+    pixel_format = LaunchConfiguration('pixel_format')
+    output_encoding = LaunchConfiguration('output_encoding')
 
     declare_width = DeclareLaunchArgument(
         'image_width',
@@ -23,8 +25,18 @@ def generate_launch_description():
         default_value='/dev/video0',
         description='Video device for USB camera'
     )
+    declare_pixel_format = DeclareLaunchArgument(
+        'pixel_format',
+        default_value='YUYV',
+        description='Pixel format requested from the camera (e.g. YUYV, UYVY, GREY)'
+    )
+    declare_output_encoding = DeclareLaunchArgument(
+        'output_encoding',
+        default_value='rgb8',
+        description='Output encoding published in ROS'
+    )
 
-    usb_cam_node = Node(
+    camera_node = Node(
         package='v4l2_camera',
         executable='v4l2_camera_node',
         name='camera',
@@ -33,10 +45,9 @@ def generate_launch_description():
         respawn_delay=2.0,
         parameters=[{
             'video_device': video_device,
-            'image_size': [640, 480],
-            # opcional:
-            # 'frame_rate': 30.0,
-            # 'camera_frame_id': 'camera_link',
+            'image_size': [image_width, image_height],
+            'pixel_format': pixel_format,
+            'output_encoding': output_encoding,
         }]
     )
 
@@ -44,5 +55,7 @@ def generate_launch_description():
         declare_width,
         declare_height,
         declare_device,
-        usb_cam_node
+        declare_pixel_format,
+        declare_output_encoding,
+        camera_node
     ])

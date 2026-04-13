@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import cv2
 
 # Load trained model
-model = YOLO("yolov8n_custom.pt")
+model = YOLO("yolov8n_custom_en.pt")
 
 # Open USB camera
 cap = cv2.VideoCapture(0)   # Try 0, if it fails try 1

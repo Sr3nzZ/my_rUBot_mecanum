@@ -7,7 +7,7 @@ with the objects, their positions and depth.
 # YOLO service imports
 import os
 import rclpy
-from my_robot_ai_identification.services.images_service import *
+from my_robot_depth_navigation.services.images_service import *
 from ultralytics import YOLO
 
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
@@ -19,7 +19,7 @@ from rclpy.node import Node
 from rclpy.logging import get_logger
 
 # ROS2 image processing imports
-from sensor_msgs.msg import Image, CompressedImage
+from sensor_msgs.msg import Image
 
 # Custom message import
 from custom_msgs.msg import InferenceData
@@ -71,8 +71,8 @@ class YoloPredictionNode(Node):
         camera_topic = self.get_parameter('camera_topic').get_parameter_value().string_value
 
         self.create_subscription(
-            CompressedImage,
-            camera_topic + '/image_raw/compressed',
+            Image,
+            camera_topic + '/color/image_raw',
             self.color_image_callback,
             qos
         )
@@ -131,8 +131,6 @@ class YoloPredictionNode(Node):
         """
 
         # If no detection is performed not save the depth image
-        if not self.color_image:
-            return
         self.depth_image = msg
 
 
@@ -148,9 +146,12 @@ class YoloPredictionNode(Node):
         color_image = self.color_image
         depth_image = self.depth_image
 
+        self.color_image = None
+        self.depth_image = None
+
         # Convert ROS image to OpenCV image
-        color_image = compressed_to_cv(self.color_image)
-        depth_image = ros_to_cv(self.depth_image, encoding='32FC1')
+        color_image = ros_to_cv(color_image)
+        depth_image = ros_to_cv(depth_image, encoding='32FC1')
 
         # Get predictions
         predictions = self.get_predictions(color_image)
