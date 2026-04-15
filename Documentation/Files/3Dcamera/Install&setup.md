@@ -203,7 +203,7 @@ For GUI using X11:
 xhost +local:root
 ````
 
-# Program test
+## Program test
 To test if the camera is working properly, you can:
 - Start the camera:
   ```bash
@@ -253,6 +253,47 @@ To test if the camera is working properly, you can:
   sudo systemctl restart chrony
   chronyc tracking
   ```
+
+# Install 3D camera Orbbec Gemini2
+
+You have to install:
+````bash
+sudo apt update
+
+sudo apt install -y \
+  ros-humble-orbbec-camera \
+  ros-humble-orbbec-description \
+  libgflags-dev \
+  nlohmann-json3-dev \
+  libgoogle-glog-dev \
+  libusb-1.0-0-dev \
+  ros-humble-image-transport \
+  ros-humble-image-transport-plugins \
+  ros-humble-compressed-image-transport \
+  ros-humble-image-publisher \
+  ros-humble-camera-info-manager \
+  ros-humble-diagnostic-updater \
+  ros-humble-diagnostic-msgs \
+  ros-humble-statistics-msgs \
+  ros-humble-xacro \
+  ros-humble-backward-ros \
+  libdw-dev \
+  libssl-dev \
+  mesa-utils \
+  libgl1
+````
+You have to install also Udev rules to the host:
+````bash
+sudo cp /opt/ros/humble/share/orbbec_camera/udev/99-obsensor-libusb.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+````
+Then you can use it with:
+````bash
+source /opt/ros/humble/setup.bash
+ros2 run orbbec_camera list_devices_node
+ros2 launch orbbec_camera gemini2.launch.py
+````
 
   # 3D camera on Gazebo simulation
 
