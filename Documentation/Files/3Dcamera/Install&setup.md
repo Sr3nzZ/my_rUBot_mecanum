@@ -256,6 +256,8 @@ To test if the camera is working properly, you can:
 
 # Install 3D camera Orbbec Gemini2
 
+## If you have a PC-Ubuntu22
+
 You have to install:
 ````bash
 sudo apt update
@@ -294,6 +296,67 @@ source /opt/ros/humble/setup.bash
 ros2 run orbbec_camera list_devices_node
 ros2 launch orbbec_camera gemini2.launch.py
 ````
+
+## If you have a PC-Ubuntu24
+
+You have tu use the Docker custom image `manelpuig/ros2-humble-ub-ur5e:latest`
+
+Follow the steps:
+- On host connect the Orbbec camera and verify
+  ````bash
+  lsusb
+  ````
+  > You have to see Orbbec Gemini
+- Install Udev rules:
+  ````bash
+  sudo nano /etc/udev/rules.d/99-obsensor-libusb.rules
+  ````
+- Add this line
+  ````bash
+  SUBSYSTEM=="usb", ATTR{idVendor}=="2bc5", MODE:="0666"
+  ````
+- save and apply the rules:
+  ````bash
+  sudo udevadm control --reload-rules
+  sudo udevadm trigger
+  ````
+- Unplug and plug again
+- Close and open the container
+- Verify:
+  ````bash
+  lsusb
+  ros2 run orbbec_camera list_devices_node
+  ````
+- The correct answer has to be:
+  ````bash
+  Name: Orbbec Gemini2
+  Connection: USB3.0
+  ````
+- Launch the correct configuration:
+  ````bash
+  ros2 launch orbbec_camera gemini2.launch.py \
+  color_width:=640 \
+  color_height:=480 \
+  color_fps:=15 \
+  color_format:=MJPG \
+  depth_width:=640 \
+  depth_height:=400 \
+  depth_fps:=15 \
+  depth_registration:=false \
+  enable_ir:=false \
+  enable_point_cloud:=false \
+  enable_accel:=false \
+  enable_gyro:=false \
+  connection_delay:=3000
+  ````
+- Verify
+  ````bash
+  ros2 topic list
+  ros2 topic hz /camera/color/image_raw
+  ````
+## On Raspberrypi4
+
+
 
   # 3D camera on Gazebo simulation
 
