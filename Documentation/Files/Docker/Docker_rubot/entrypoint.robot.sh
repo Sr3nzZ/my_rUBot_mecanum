@@ -1,13 +1,17 @@
 #!/bin/bash
 set -e
 
-source "/opt/ros/$ROS_DISTRO/setup.bash"
-source "/root/orbbec_ws/install/setup.bash"
-source "/root/ROS2_rUBot_mecanum_ws/install/setup.bash"
+# ROS 2 base environment
+source /opt/ros/humble/setup.bash
 
-cd /root/ROS2_rUBot_mecanum_ws
+# Orbbec workspace
+if [ -f /root/orbbec_ws/install/setup.bash ]; then
+  source /root/orbbec_ws/install/setup.bash
+fi
 
-export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+# Main robot workspace
+if [ -f /root/ROS2_rUBot_mecanum_ws/install/setup.bash ]; then
+  source /root/ROS2_rUBot_mecanum_ws/install/setup.bash
+fi
 
-echo "Executing the main command..."
 exec "$@"
