@@ -56,7 +56,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxkbcommon-x11-0 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir ultralytics "numpy<1.24"
 RUN pip3 install --no-cache-dir pyserial
 
 # --------------------------------------------------
@@ -80,22 +79,12 @@ RUN source /opt/ros/humble/setup.bash && \
 # Robot workspace
 # --------------------------------------------------
 WORKDIR /root
-RUN git clone https://github.com/manelpuig/ROS2_rUBot_mecanum_ws.git
 
-WORKDIR /root/ROS2_rUBot_mecanum_ws/src
-RUN git clone https://github.com/Slamtec/rplidar_ros.git -b ros2
-
-WORKDIR /root/ROS2_rUBot_mecanum_ws
 RUN source /opt/ros/humble/setup.bash && \
-    source /root/orbbec_ws/install/setup.bash && \
-    rosdep update && \
-    rosdep install --from-paths src --ignore-src -r -y --skip-keys="gazebo_ros" && \
-    colcon build --symlink-install
+    source /root/orbbec_ws/install/setup.bash
 
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
-    echo "source /root/orbbec_ws/install/setup.bash" >> /root/.bashrc && \
-    echo "source /root/ROS2_rUBot_mecanum_ws/install/setup.bash" >> /root/.bashrc && \
-    echo "cd /root/ROS2_rUBot_mecanum_ws" >> /root/.bashrc
+    echo "source /root/orbbec_ws/install/setup.bash" >> /root/.bashrc
 
 COPY --chmod=755 entrypoint.robot.sh /entrypoint.robot.sh
 COPY --chmod=755 bringup.sh /bringup.sh

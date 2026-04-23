@@ -156,14 +156,14 @@ Follow the instructions:
     ```
 - To modify the `Dockerfile`, build and push to Docker Hub, you can follow the instructions:
     ```bash
-    docker build -t manelpuig/ros2-humble-ub-biorob:latest .
+    docker build -f Dockerfile_orbbec.robot -t manelpuig/ros2-humble-ub-rubot:orbbec .
     docker login
-    docker push manelpuig/ros2-humble-ub-biorob:latest
+    docker push manelpuig/ros2-humble-ub-rubot:orbbec
     ```
 - Start the Container
 ````shell
 docker system prune -f
-docker compose -f docker-compose.robot.yaml up -d --build
+docker compose -f docker-compose_orbbec_services.yaml up
 ````
 >First time this will take 25min aprox.
 - If you want to Stop the Container

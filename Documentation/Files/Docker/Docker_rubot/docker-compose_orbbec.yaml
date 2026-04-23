@@ -2,7 +2,7 @@ name: robot_humble_container
 
 services:
   robot-humble-container:
-    image: manelpuig/ros2-humble-ub-robot:orbbec
+    image: manelpuig/ros2-humble-ub-rubot:orbbec
     container_name: pc_humble_robot
 
     privileged: true

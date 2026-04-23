@@ -2,7 +2,7 @@ name: robot_humble_stack
 
 services:
   my_robot:
-    image: manelpuig/ros2-humble-ub-robot:orbbec
+    image: manelpuig/ros2-humble-ub-rubot:orbbec
     container_name: my_robot
     privileged: true
     network_mode: host
@@ -36,7 +36,7 @@ services:
       start_period: 20s
 
   my_rosbridge:
-    image: manelpuig/ros2-humble-ub-robot:orbbec
+    image: manelpuig/ros2-humble-ub-rubot:orbbec
     container_name: my_rosbridge
     privileged: true
     network_mode: host
@@ -76,7 +76,7 @@ services:
       start_period: 10s
 
   my_robot_web:
-    image: manelpuig/ros2-humble-ub-robot:orbbec
+    image: manelpuig/ros2-humble-ub-rubot:orbbec
     container_name: my_robot_web
     network_mode: host
     tty: true
