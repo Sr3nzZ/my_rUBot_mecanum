@@ -149,7 +149,17 @@ We first create a Docker folder where we place:
   ````
 
 Follow the instructions:
-
+- To see the Images and Containers:
+    ```bash
+    docker ps -a               # containers
+    docker images              # images
+    ```
+- To modify the `Dockerfile`, build and push to Docker Hub, you can follow the instructions:
+    ```bash
+    docker build -t manelpuig/ros2-humble-ub-biorob:latest .
+    docker login
+    docker push manelpuig/ros2-humble-ub-biorob:latest
+    ```
 - Start the Container
 ````shell
 docker system prune -f
