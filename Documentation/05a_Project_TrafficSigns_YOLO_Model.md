@@ -153,3 +153,6 @@ Run The real-time prediction:
 ros2 run my_robot_ai_identification rt_prediction_yolo_exec
 ````
 > You have to change the model path to '/root/ROS2_rUBot_mecanum_ws/src/AI_Projects/my_robot_ai_identification/models/yolov8n_custom.pt
+
+# **Signal Classification**
+
