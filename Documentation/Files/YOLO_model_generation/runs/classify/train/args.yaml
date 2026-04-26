@@ -13,7 +13,7 @@ cache: false
 device: cpu
 workers: 8
 project: null
-name: train
+name: train2
 exist_ok: false
 pretrained: true
 optimizer: AdamW
@@ -107,4 +107,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: botsort.yaml
-save_dir: C:\Users\manel.puig\Downloads\github_projects\my_rUBot_mecanum\Documentation\Files\YOLO_model_generation\runs\classify\train
+save_dir: C:\Users\puigm\Downloads\github_projects\my_rUBot_mecanum\Documentation\Files\YOLO_model_generation\runs\classify\train2
