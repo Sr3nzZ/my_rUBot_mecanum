@@ -7,6 +7,7 @@ py -3.11 -m pip install ultralytics
 py -3.11 -m pip uninstall numpy
 py -3.11 -m pip install "numpy<2.0"
 py -3.11 -m pip install pillow
+py -3.11 -m pip install opencv-python
 ````
 - You need an initial structure:
 ````python
