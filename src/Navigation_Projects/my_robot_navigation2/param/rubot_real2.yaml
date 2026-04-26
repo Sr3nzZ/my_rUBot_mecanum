@@ -1,11 +1,6 @@
 amcl:
   ros__parameters:
     set_initial_pose: true
-    initial_pose:
-      x: 0.0
-      y: 0.0
-      z: 0.0
-      yaw: 0.0
     use_sim_time: False
     alpha1: 0.3
     alpha2: 0.3
@@ -195,9 +190,9 @@ local_costmap:
       width: 3
       height: 3
       resolution: 0.05
+      robot_radius: 0.22
       transform_tolerance: 0.3
       plugins: ["obstacle_layer", "inflation_layer"]
-      footprint: "[[0.30, 0.25], [0.30, -0.25], [-0.30, -0.25], [-0.30, 0.25]]"
 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -218,7 +213,7 @@ local_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: True
         inflation_radius: 0.30
-        cost_scaling_factor: 2.5
+        cost_scaling_factor: 2.0
 
       always_send_full_costmap: True
 
@@ -238,11 +233,11 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_footprint
       use_sim_time: False
+      robot_radius: 0.22
       resolution: 0.05
       track_unknown_space: true
       transform_tolerance: 0.3
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
-      footprint: "[[0.20, 0.15], [0.20, -0.15], [-0.20, -0.15], [-0.20, 0.15]]"
 
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -266,8 +261,8 @@ global_costmap:
 
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.75
-        cost_scaling_factor: 2.75
+        inflation_radius: 0.30
+        cost_scaling_factor: 2.0
 
       always_send_full_costmap: True
 
