@@ -1,0 +1,124 @@
+from ultralytics import YOLO
+import cv2
+import time
+import sys
+
+# ==============================
+# PARAMETERS
+# ==============================
+MODEL_PATH = "runs/classify/train/weights/best.pt"
+CAMERA_INDEX = 0
+IMG_SIZE = 640
+CONF_THRESHOLD = 0.25
+WINDOW_NAME = "YOLO Classification - Camera"
+
+# ==============================
+# LOAD MODEL
+# ==============================
+model = YOLO(MODEL_PATH)
+
+# ==============================
+# OPEN CAMERA
+# ==============================
+cap = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_DSHOW)  # Windows stability fix
+
+if not cap.isOpened():
+    print("Error: camera could not be opened")
+    sys.exit(1)
+
+print("Camera opened successfully")
+print("Press 'q' to quit")
+
+cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+
+try:
+    while True:
+
+        ret, frame = cap.read()
+
+        if not ret:
+            print("Error: could not read frame")
+            break
+
+        # ------------------------------
+        # YOLO CLASSIFICATION
+        # ------------------------------
+        start_time = time.perf_counter()
+
+        results = model.predict(
+            source=frame,
+            imgsz=IMG_SIZE,
+            conf=CONF_THRESHOLD,
+            verbose=False
+        )
+
+        elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+
+        # ------------------------------
+        # GET BEST CLASS
+        # ------------------------------
+        result = results[0]
+
+        if result.probs is not None:
+            class_id = int(result.probs.top1)
+            confidence = float(result.probs.top1conf)
+            class_name = result.names[class_id]
+
+            text = f"{class_name} ({confidence:.2f}) - {elapsed_ms:.1f} ms"
+        else:
+            text = f"No classification - {elapsed_ms:.1f} ms"
+
+        # ------------------------------
+        # DRAW TEXT CENTERED AT TOP
+        # ------------------------------
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1.0
+        thickness = 2
+
+        text_size, _ = cv2.getTextSize(text, font, font_scale, thickness)
+        text_width, text_height = text_size
+
+        frame_height, frame_width = frame.shape[:2]
+
+        x = (frame_width - text_width) // 2
+        y = 40
+
+        cv2.rectangle(
+            frame,
+            (x - 10, y - text_height - 10),
+            (x + text_width + 10, y + 10),
+            (0, 0, 0),
+            -1
+        )
+
+        cv2.putText(
+            frame,
+            text,
+            (x, y),
+            font,
+            font_scale,
+            (255, 255, 255),
+            thickness,
+            cv2.LINE_AA
+        )
+
+        # ------------------------------
+        # SHOW IMAGE
+        # ------------------------------
+        cv2.imshow(WINDOW_NAME, frame)
+
+        key = cv2.waitKey(1) & 0xFF
+
+        if key == ord("q"):
+            print("Exit requested by user")
+            break
+
+except KeyboardInterrupt:
+    print("\nInterrupted by user (Ctrl+C)")
+
+finally:
+    # Clean shutdown (important)
+    cap.release()
+    cv2.destroyAllWindows()
+    cv2.waitKey(1)
+    print("Camera released and windows closed correctly")

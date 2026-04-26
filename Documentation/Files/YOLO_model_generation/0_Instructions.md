@@ -11,7 +11,7 @@ py -3.11 -m pip install opencv-python
 ````
 - You need an initial structure:
 ````python
-raw_dataset/
+photos/
 ├── Stop/
 ├── Right/
 ├── Left/
@@ -19,7 +19,10 @@ raw_dataset/
 ├── Nothing/
 └── Forbidden/
 ````
-- First step is to resize to a 640x640 file format in a new structure, with the cose `prepare_dataset.py`:
+- Now you have to make photos (around 200) for each traffic sign with different positions, ilumination, environment, etc
+    - open terminal in `/photos/Stop` folder, for exemple
+    - run:  py -3.11 ..\1_capture_images.py
+- First step is to resize to a 640x640 file format in a new structure, with the code `2_prepare_dataset.py`:
 ````python
 traffic_sign_dataset/
 ├── train/
@@ -38,5 +41,10 @@ traffic_sign_dataset/
     └── Forbidden/
 ````
 > See the value: TRAIN_RATIO = 0.80   # 80% train, 20% val
-- Train a classification model with `generate_model.py`
+- Train a classification model with `3_generate_model.py`
 - the model will be generated in: `runs/classify/train/weights/best.pt`
+- To test the model prediction:
+    - With the classification model `best.pt`:
+        - Place `best.pt` in folder: /src/AI_projects/my_robot_ai_identification/models 
+        - Open a terminal in main project folder
+        - Verify on `4_classify_camera.py` python code MODEL_PATH = "/src/AI_projects/my_robot_ai_identification/models/best.pt":
