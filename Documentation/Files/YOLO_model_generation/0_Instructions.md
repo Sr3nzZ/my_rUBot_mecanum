@@ -1,4 +1,4 @@
-# *YOLO Model generation*
+# **YOLO Model generation for Classification task**
 
 You have to install:
 - Ultralytics library and other needed libraries
