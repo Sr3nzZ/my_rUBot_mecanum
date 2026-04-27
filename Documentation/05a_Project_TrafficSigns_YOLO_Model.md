@@ -191,6 +191,7 @@ py -3.11 -m pip install "numpy<2.0"
 py -3.11 -m pip install pillow
 py -3.11 -m pip install opencv-python
 ````
+> Chang the python version to agree with the one intalled in your computer
 
 ## **1. YOLO Model generation for Classification task**
 
@@ -206,8 +207,16 @@ photos/
 └── Forbidden/
 ````
 - Now you have to make photos (around 200) for each traffic sign with different positions, ilumination, environment, etc
-    - open terminal in `/photos/Stop` folder, for exemple
-    - run:  py -3.11 ..\1_capture_images.py
+    - If you want to use your computer webcam: 
+        - open terminal in `/photos/Stop` folder, for exemple and
+        - run `1_capture_images.py`
+    - If you want to use the rUBot camera: 
+        - Create a ROS2 node to read Images from `/image_raw` topic and save in speciffic folder (1_capture_images_from_topic.py)
+        - In a new terminal execute:
+        ````bash
+        py -3.11 1_capture_images_from_topic.py
+        ````
+        - verify the topic name and change OUTPUT_RELATIVE_PATH for each signal
 - First step is to resize to a 640x640 file format in a new structure, with the code `2_prepare_dataset.py`:
 ````python
 traffic_sign_dataset/
@@ -229,11 +238,16 @@ traffic_sign_dataset/
 > See the value: TRAIN_RATIO = 0.80   # 80% train, 20% val
 - Train a classification model with `3_generate_model.py`
 - the model will be generated in: `runs/classify/train/weights/best.pt`
-- To test the model prediction:
-    - With the classification model `best.pt`:
-        - Place `best.pt` in folder: /src/AI_projects/my_robot_ai_identification/models 
-        - Open a terminal in main project folder
-        - Verify on `4_classify_camera.py` python code MODEL_PATH = "/src/AI_projects/my_robot_ai_identification/models/best.pt":
+- **To test the model prediction** with the classification model `best.pt`:
+    - Using your computer webcam:
+        - Verify on `4_classify_camera.py` python code MODEL_PATH and execute it
+    - If you want to use the rUBot camera: 
+        - Create a ROS2 node to read Images from `/image_raw` topic and classify in real-time using the previously generated model (4_classify_camera_from_topic.py)
+        - In a new terminal execute:
+        ````bash
+        py -3.11 4_classify_camera_from_topic.py
+        ````
+        - verify the topic name and MODEL_PATH
 
 ## **2. YOLO Model generation for Identification task**
 
@@ -255,16 +269,7 @@ To properly label signs in the images and train a model we will use "roboflow":
         ![](./Images/07_Yolo/02_Object_detection1.jpg)
     - Select `Use Traditional Model Builder Instead` to have whole control of YOLO model in Robotic projects
     - You have 5 different classes: Stop, Right, Left, Give, Forbidden
-    - You will have in your local PC one folder per Class. To take pictures with the robot camera and save this pictures in a local folder, you have to run a custom node, that:
-        - subscribes to the `/image_raw` topic
-        - takes one image each x seconds
-        - save each image in a local folder with the format. `folder_name_001.jpg`, etc
-        ````python
-        python3 0_capture_topic_images0.py --ros-args \
-        -p image_topic:=/image_raw \
-        -p output_folder:=handshake \
-        -p capture_interval:=2.0
-        ````
+    - You will have in your local PC one folder per Class with the different photos you have taken previously.
     -Choose `Select Folder` to upload pictures from a local folder. Upload all the images on this project.
         ![](./Images/07_Yolo/04_Project2.png)
     - Type ``save&continue`` and ``start labeling`` to label all traffic signs pictures
@@ -286,90 +291,24 @@ To properly label signs in the images and train a model we will use "roboflow":
 
  <img src="./Images/07_Yolo/09_DataSet.png" width="400"/>  <img src="./Images/07_Yolo/09_DataSet2.png" width="200"/> 
 
+- **To test the model prediction** with the identification model `yolov8n_identification_signals.pt`:
+    - Using your computer webcam:
+        - Verify on `4_classify_camera.py` python code the MODEL_PATH and execute it
+    - If you want to use the rUBot camera: 
+        - Verify in `4_classify_camera_from_topic.py` the topic and MODEL_PATH
+        - In a new terminal execute:
+        ````bash
+        py -3.11 4_classify_camera_from_topic.py
+        ````
 
-## **4. Signal prediction**
 
-In TheConstruct environment
-- `1_train_model.py`: Train the model on pre-trained model (i.e. yolov8n.pt) with the custom dataset obtained from Roboflow (i.e. data.yaml). The suggested value for "epochs=100" to obtain a more accurate model. This program performs:
-    - Generates a model "yolo8n_custom.pt"
-    - Evaluates the model performances
-    
-    ````python
-    # train_model.py
-    from ultralytics import YOLO
+## **3. Pose Estimation**
 
-    model = YOLO("yolov8n.pt")
+Pose estimation detects **keypoints of articulated bodies**, typically
+humans.
 
-    model.train(
-        data="data.yaml",
-        epochs=30,
-        imgsz=640,
-        device="cpu"
-    )
-
-    # After training, use:
-    # runs/detect/train/weights/best.pt
-    # and copy the best.pt file to a /model folder with a proper name
+- Open a terminal in `YOLO_model_generation`
+- execute the python program:
+    ````pythpn
+    py -3.11 6_pose_gesture_camera.py
     ````
-- `2_detect_image.py`: Make prediction on image file using the saved custom model (i.e. yolov8n_custom.pt)
-
-    ````python
-    # This script demonstrates how to train a YOLOv8n model using the Ultralytics YOLO library.
-    from ultralytics import YOLO
-
-    # Load a pretrained YOLO8n model
-    model = YOLO("yolov8n_custom.pt")  # Load the YOLOv8n model
-    print(model.names)
-    # Perform object detection on an image
-    results = model("test/images/prohibido.jpg")  # Predict on an image from test set
-    #results = model("Foto_.jpg")
-    #results = model("Foto_2.jpg")
-    results[0].show()  # Display results
-    ````
-    > `yolov8n_custom_en.pt` has label names in english
-- `3_detect_video.py`: Make prediction on image file using the saved custom model (i.e. yolov8n_custom.pt)
-
-### **Software** test in Gazebo: 
-
-Bringup the robot in simulation:
-````shell
-ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml use_sim_time:=true x0:=0.5 y0:=-1.5 yaw0:=1.57 robot:=rubot/rubot_mecanum.urdf custom_world:=square4m_sign.world
-````
-Use the ``yolo_prediction_compressed_sw.py`` after the navigation node is launched.
-````shell
-ros2 run my_robot_ai_identification rt_prediction_yolo_exec
-````
-> You have to change the model path to `/home/user/ROS2_rUBot_mecanum_ws/src/AI_Projects/my_robot_ai_identification/models/yolov8n_custom.pt`
-
-To see the image with prediction on RVIZ2, select a new Image message on topic /inference_result
-    ![](./Images/07_Yolo/11_prediction_sw.png)
-    ![](./Images/07_Yolo/11_prediction_sw2.png)
-
-### **Hardware** Test in real LIMO robot:
-You have to install on the Limo robot container:
-````shell
-apt update
-apt install python3-pip
-pip install ultralytics
-# needed numpy version compatible
-pip3 uninstall numpy
-pip3 install "numpy<2.0"
-#
-apt install git
-git clone https://github.com/manelpuig/ROS2_rUBot_mecanum_ws.git
-source /opt/ros/humble/setup.bash
-apt install python3-colcon-common-extensions
-apt install build-essential
-colcon build
-source install/setup.bash
-ros2 run my_robot_ai_identification rt_prediction_yolo_exec
-````
-    
-Run The real-time prediction:
-````shell
-ros2 run my_robot_ai_identification rt_prediction_yolo_exec
-````
-> You have to change the model path to '/root/ROS2_rUBot_mecanum_ws/src/AI_Projects/my_robot_ai_identification/models/yolov8n_custom.pt
-
-# **Signal Classification**
-
