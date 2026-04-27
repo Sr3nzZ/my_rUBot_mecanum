@@ -1,24 +1,36 @@
+#!/usr/bin/env python3
+
 from ultralytics import YOLO
 import cv2
 import time
 import sys
 import os
 
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+
+
 # ==============================
-# PARAMETERS
+# GLOBAL PARAMETERS
 # ==============================
 MODEL_PATH = "models/yolov8n_custom.pt"
 
-CAMERA_INDEX = 0
+IMAGE_TOPIC = "/image_raw"
+
 WINDOW_NAME = "YOLO Traffic Sign Detection"
 
 CONF_THRESHOLD = 0.50
-IMG_SIZE = 160 #640 #160 #640 #
+IMG_SIZE = 160
 
-# Optional: force image resolution before inference
-PROCESS_WIDTH = 160 #640 #160 #640 #
-PROCESS_HEIGHT = 120 #560 #120 #560 #
-DISPLAY_SCALE = 4 #1 #4 #1 #
+PROCESS_WIDTH = 160
+PROCESS_HEIGHT = 120
+DISPLAY_SCALE = 4
+
+SHOW_WINDOW = True
+
 
 # ==============================
 # CHECK MODEL
@@ -26,6 +38,7 @@ DISPLAY_SCALE = 4 #1 #4 #1 #
 if not os.path.exists(MODEL_PATH):
     print(f"Error: model not found: {MODEL_PATH}")
     sys.exit(1)
+
 
 # ==============================
 # LOAD MODEL
@@ -36,30 +49,47 @@ print("Model loaded correctly")
 print("Model classes:")
 print(model.names)
 
-# ==============================
-# OPEN CAMERA
-# ==============================
-cap = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_DSHOW)
 
-if not cap.isOpened():
-    print("Error: camera could not be opened")
-    sys.exit(1)
+class YoloImageRawNode(Node):
 
-print("Camera opened successfully")
-print("Press 'q' to quit")
+    def __init__(self):
+        super().__init__("yolo_image_raw_node")
 
-cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+        self.bridge = CvBridge()
 
-try:
-    while True:
-        ret, frame = cap.read()
+        qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1
+        )
 
-        if not ret:
-            print("Error: could not read frame")
-            break
+        self.subscription = self.create_subscription(
+            Image,
+            IMAGE_TOPIC,
+            self.image_callback,
+            qos
+        )
 
-        # Resize image used by YOLO
-        process_frame = cv2.resize(frame, (PROCESS_WIDTH, PROCESS_HEIGHT))
+        if SHOW_WINDOW:
+            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+
+        self.get_logger().info(f"Subscribed to {IMAGE_TOPIC}")
+        self.get_logger().info("Press Ctrl+C to stop")
+
+    def image_callback(self, msg):
+        try:
+            frame = self.bridge.imgmsg_to_cv2(
+                msg,
+                desired_encoding="bgr8"
+            )
+        except Exception as e:
+            self.get_logger().error(f"Error converting image: {e}")
+            return
+
+        process_frame = cv2.resize(
+            frame,
+            (PROCESS_WIDTH, PROCESS_HEIGHT)
+        )
 
         start_time = time.perf_counter()
 
@@ -91,6 +121,13 @@ try:
             for box in result.boxes:
                 x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
 
+                # YOLO detects on process_frame.
+                # display_frame is scaled, so box coordinates must also be scaled.
+                x1 *= DISPLAY_SCALE
+                y1 *= DISPLAY_SCALE
+                x2 *= DISPLAY_SCALE
+                y2 *= DISPLAY_SCALE
+
                 class_id = int(box.cls[0])
                 confidence = float(box.conf[0])
                 class_name = result.names[class_id]
@@ -104,7 +141,6 @@ try:
                     f"center=({cx},{cy})"
                 )
 
-                # Draw bounding box
                 cv2.rectangle(
                     display_frame,
                     (x1, y1),
@@ -113,7 +149,6 @@ try:
                     2
                 )
 
-                # Draw center point
                 cv2.circle(
                     display_frame,
                     (cx, cy),
@@ -122,12 +157,17 @@ try:
                     -1
                 )
 
-                # Draw label
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 0.55
                 thickness = 2
 
-                text_size, _ = cv2.getTextSize(label, font, font_scale, thickness)
+                text_size, _ = cv2.getTextSize(
+                    label,
+                    font,
+                    font_scale,
+                    thickness
+                )
+
                 text_width, text_height = text_size
 
                 label_x = x1
@@ -152,8 +192,11 @@ try:
                     cv2.LINE_AA
                 )
 
-        # Top information bar
-        info_text = f"detections={detections} | conf>{CONF_THRESHOLD:.2f} | {elapsed_ms:.1f} ms"
+        info_text = (
+            f"detections={detections} | "
+            f"conf>{CONF_THRESHOLD:.2f} | "
+            f"{elapsed_ms:.1f} ms"
+        )
 
         cv2.rectangle(
             display_frame,
@@ -174,19 +217,27 @@ try:
             cv2.LINE_AA
         )
 
-        cv2.imshow(WINDOW_NAME, display_frame)
+        if SHOW_WINDOW:
+            cv2.imshow(WINDOW_NAME, display_frame)
+            cv2.waitKey(1)
 
-        key = cv2.waitKey(1) & 0xFF
 
-        if key == ord("q"):
-            print("Exit requested by user")
-            break
+def main(args=None):
+    rclpy.init(args=args)
 
-except KeyboardInterrupt:
-    print("\nInterrupted by user Ctrl+C")
+    node = YoloImageRawNode()
 
-finally:
-    cap.release()
-    cv2.destroyAllWindows()
-    cv2.waitKey(1)
-    print("Camera released and windows closed correctly")
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        print("\nInterrupted by user Ctrl+C")
+    finally:
+        node.destroy_node()
+        cv2.destroyAllWindows()
+        cv2.waitKey(1)
+        rclpy.shutdown()
+        print("Node stopped correctly")
+
+
+if __name__ == "__main__":
+    main()

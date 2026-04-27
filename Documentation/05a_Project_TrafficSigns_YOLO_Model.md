@@ -293,12 +293,12 @@ To properly label signs in the images and train a model we will use "roboflow":
 
 - **To test the model prediction** with the identification model `yolov8n_identification_signals.pt`:
     - Using your computer webcam:
-        - Verify on `4_classify_camera.py` python code the MODEL_PATH and execute it
+        - Verify on `5_identify_camera.py` python code the MODEL_PATH and execute it
     - If you want to use the rUBot camera: 
-        - Verify in `4_classify_camera_from_topic.py` the topic and MODEL_PATH
+        - Verify in `5_identify_camera_from_topic.py` the topic and MODEL_PATH
         - In a new terminal execute:
         ````bash
-        py -3.11 4_classify_camera_from_topic.py
+        py -3.11 5_identify_camera_from_topic.py
         ````
 
 
@@ -312,3 +312,6 @@ humans.
     ````pythpn
     py -3.11 6_pose_gesture_camera.py
     ````
+
+![](./Images/07_Yolo/01_Yolo_Pose_Detection.png)
+![](./Images/07_Yolo/01_Yolo_Pose_Detection2.png)
