@@ -13,12 +13,9 @@ CAMERA_INDEX = 0
 WINDOW_NAME = "YOLO Traffic Sign Detection"
 
 CONF_THRESHOLD = 0.50
-IMG_SIZE = 160 #640 #160 #640 #
+IMG_SIZE = 160 # Size of images used for training the yolo model
 
-# Optional: force image resolution before inference
-PROCESS_WIDTH = 160 #640 #160 #640 #
-PROCESS_HEIGHT = 120 #560 #120 #560 #
-DISPLAY_SCALE = 4 #1 #4 #1 #
+DISPLAY_SCALE = 2   # Only affects visualization size
 
 # ==============================
 # CHECK MODEL
@@ -58,13 +55,10 @@ try:
             print("Error: could not read frame")
             break
 
-        # Resize image used by YOLO
-        process_frame = cv2.resize(frame, (PROCESS_WIDTH, PROCESS_HEIGHT))
-
         start_time = time.perf_counter()
 
         results = model.predict(
-            source=process_frame,
+            source=frame,
             imgsz=IMG_SIZE,
             conf=CONF_THRESHOLD,
             verbose=False
@@ -74,14 +68,7 @@ try:
 
         result = results[0]
 
-        display_frame = cv2.resize(
-            process_frame,
-            (
-                PROCESS_WIDTH * DISPLAY_SCALE,
-                PROCESS_HEIGHT * DISPLAY_SCALE
-            ),
-            interpolation=cv2.INTER_NEAREST
-        )
+        display_frame = frame.copy()
 
         detections = 0
 
@@ -98,88 +85,49 @@ try:
                 cx = int((x1 + x2) / 2)
                 cy = int((y1 + y2) / 2)
 
-                label = (
-                    f"{class_name} "
-                    f"{confidence * 100:.1f}% "
-                    f"center=({cx},{cy})"
-                )
+                label = f"{class_name} {confidence*100:.1f}% ({cx},{cy})"
 
-                # Draw bounding box
-                cv2.rectangle(
-                    display_frame,
-                    (x1, y1),
-                    (x2, y2),
-                    (0, 255, 0),
-                    2
-                )
-
-                # Draw center point
-                cv2.circle(
-                    display_frame,
-                    (cx, cy),
-                    5,
-                    (0, 0, 255),
-                    -1
-                )
-
-                # Draw label
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale = 0.55
-                thickness = 2
-
-                text_size, _ = cv2.getTextSize(label, font, font_scale, thickness)
-                text_width, text_height = text_size
-
-                label_x = x1
-                label_y = max(y1 - 10, text_height + 10)
-
-                cv2.rectangle(
-                    display_frame,
-                    (label_x, label_y - text_height - 8),
-                    (label_x + text_width + 8, label_y + 4),
-                    (0, 255, 0),
-                    -1
-                )
+                cv2.rectangle(display_frame,(x1,y1),(x2,y2),(0,255,0),2)
+                cv2.circle(display_frame,(cx,cy),4,(0,0,255),-1)
 
                 cv2.putText(
                     display_frame,
                     label,
-                    (label_x + 4, label_y),
-                    font,
-                    font_scale,
-                    (0, 0, 0),
-                    thickness,
-                    cv2.LINE_AA
+                    (x1, max(y1-8,20)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (0,255,0),
+                    2
                 )
 
-        # Top information bar
-        info_text = f"detections={detections} | conf>{CONF_THRESHOLD:.2f} | {elapsed_ms:.1f} ms"
+        info_text = f"detections={detections} | {elapsed_ms:.1f} ms | imgsz={IMG_SIZE}"
 
-        cv2.rectangle(
-            display_frame,
-            (0, 0),
-            (display_frame.shape[1], 35),
-            (0, 0, 0),
-            -1
-        )
+        cv2.rectangle(display_frame,(0,0),(display_frame.shape[1],30),(0,0,0),-1)
 
         cv2.putText(
             display_frame,
             info_text,
-            (15, 25),
+            (10,22),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (255, 255, 255),
-            2,
-            cv2.LINE_AA
+            0.6,
+            (255,255,255),
+            2
         )
+
+        # Only visualization scaling
+        if DISPLAY_SCALE != 1:
+            display_frame = cv2.resize(
+                display_frame,
+                (
+                    display_frame.shape[1]*DISPLAY_SCALE,
+                    display_frame.shape[0]*DISPLAY_SCALE
+                ),
+                interpolation=cv2.INTER_NEAREST
+            )
 
         cv2.imshow(WINDOW_NAME, display_frame)
 
-        key = cv2.waitKey(1) & 0xFF
-
-        if key == ord("q"):
-            print("Exit requested by user")
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
 except KeyboardInterrupt:
@@ -188,5 +136,4 @@ except KeyboardInterrupt:
 finally:
     cap.release()
     cv2.destroyAllWindows()
-    cv2.waitKey(1)
     print("Camera released and windows closed correctly")

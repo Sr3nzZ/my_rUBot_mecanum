@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from ultralytics import YOLO
 import cv2
 import time
@@ -25,8 +23,8 @@ WINDOW_NAME = "YOLO Traffic Sign Detection"
 CONF_THRESHOLD = 0.50
 IMG_SIZE = 160
 
-PROCESS_WIDTH = 160
-PROCESS_HEIGHT = 120
+# Only for PC visualization.
+# It does NOT affect YOLO inference or box coordinates.
 DISPLAY_SCALE = 4
 
 SHOW_WINDOW = True
@@ -86,15 +84,14 @@ class YoloImageRawNode(Node):
             self.get_logger().error(f"Error converting image: {e}")
             return
 
-        process_frame = cv2.resize(
-            frame,
-            (PROCESS_WIDTH, PROCESS_HEIGHT)
-        )
+        # The image already comes from the robot at 160x120.
+        # Do NOT resize before YOLO.
+        input_frame = frame
 
         start_time = time.perf_counter()
 
         results = model.predict(
-            source=process_frame,
+            source=input_frame,
             imgsz=IMG_SIZE,
             conf=CONF_THRESHOLD,
             verbose=False
@@ -104,14 +101,8 @@ class YoloImageRawNode(Node):
 
         result = results[0]
 
-        display_frame = cv2.resize(
-            process_frame,
-            (
-                PROCESS_WIDTH * DISPLAY_SCALE,
-                PROCESS_HEIGHT * DISPLAY_SCALE
-            ),
-            interpolation=cv2.INTER_NEAREST
-        )
+        # Draw directly on the original 160x120 image
+        display_frame = input_frame.copy()
 
         detections = 0
 
@@ -119,14 +110,8 @@ class YoloImageRawNode(Node):
             detections = len(result.boxes)
 
             for box in result.boxes:
+                # These coordinates already correspond to input_frame
                 x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-
-                # YOLO detects on process_frame.
-                # display_frame is scaled, so box coordinates must also be scaled.
-                x1 *= DISPLAY_SCALE
-                y1 *= DISPLAY_SCALE
-                x2 *= DISPLAY_SCALE
-                y2 *= DISPLAY_SCALE
 
                 class_id = int(box.cls[0])
                 confidence = float(box.conf[0])
@@ -146,20 +131,20 @@ class YoloImageRawNode(Node):
                     (x1, y1),
                     (x2, y2),
                     (0, 255, 0),
-                    2
+                    1
                 )
 
                 cv2.circle(
                     display_frame,
                     (cx, cy),
-                    5,
+                    2,
                     (0, 0, 255),
                     -1
                 )
 
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale = 0.55
-                thickness = 2
+                font_scale = 0.35
+                thickness = 1
 
                 text_size, _ = cv2.getTextSize(
                     label,
@@ -171,12 +156,12 @@ class YoloImageRawNode(Node):
                 text_width, text_height = text_size
 
                 label_x = x1
-                label_y = max(y1 - 10, text_height + 10)
+                label_y = max(y1 - 4, text_height + 4)
 
                 cv2.rectangle(
                     display_frame,
-                    (label_x, label_y - text_height - 8),
-                    (label_x + text_width + 8, label_y + 4),
+                    (label_x, label_y - text_height - 4),
+                    (label_x + text_width + 4, label_y + 2),
                     (0, 255, 0),
                     -1
                 )
@@ -184,7 +169,7 @@ class YoloImageRawNode(Node):
                 cv2.putText(
                     display_frame,
                     label,
-                    (label_x + 4, label_y),
+                    (label_x + 2, label_y),
                     font,
                     font_scale,
                     (0, 0, 0),
@@ -193,15 +178,16 @@ class YoloImageRawNode(Node):
                 )
 
         info_text = (
-            f"detections={detections} | "
+            f"det={detections} | "
             f"conf>{CONF_THRESHOLD:.2f} | "
-            f"{elapsed_ms:.1f} ms"
+            f"{elapsed_ms:.1f} ms | "
+            f"{frame.shape[1]}x{frame.shape[0]}"
         )
 
         cv2.rectangle(
             display_frame,
             (0, 0),
-            (display_frame.shape[1], 35),
+            (display_frame.shape[1], 18),
             (0, 0, 0),
             -1
         )
@@ -209,13 +195,25 @@ class YoloImageRawNode(Node):
         cv2.putText(
             display_frame,
             info_text,
-            (15, 25),
+            (4, 13),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
+            0.35,
             (255, 255, 255),
-            2,
+            1,
             cv2.LINE_AA
         )
+
+        # Scale only after drawing.
+        # This only enlarges the image on the PC screen.
+        if DISPLAY_SCALE != 1:
+            display_frame = cv2.resize(
+                display_frame,
+                (
+                    display_frame.shape[1] * DISPLAY_SCALE,
+                    display_frame.shape[0] * DISPLAY_SCALE
+                ),
+                interpolation=cv2.INTER_NEAREST
+            )
 
         if SHOW_WINDOW:
             cv2.imshow(WINDOW_NAME, display_frame)
