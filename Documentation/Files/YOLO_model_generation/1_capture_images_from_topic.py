@@ -12,12 +12,12 @@ from cv_bridge import CvBridge
 # GLOBAL PARAMETERS
 # ==============================
 IMAGE_TOPIC = "/image_raw"
-INTERVAL_SECONDS = 0.5
+INTERVAL_SECONDS = 1
 FILENAME_PREFIX = "image"
 START_INDEX = 1
 
 # Relative to the project root directory 
-OUTPUT_RELATIVE_PATH = "photos/Forbidden"
+OUTPUT_RELATIVE_PATH = "photos_g2/Forbidden"
 
 
 class ImageCaptureNode(Node):

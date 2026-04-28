@@ -10,7 +10,7 @@ def main():
     print("Starting training...")
 
     model.train(
-        data="traffic_sign_dataset",   # Folder with train/val class subfolders
+        data="traffic_sign_dataset_g2",   # Folder with train/val class subfolders
         epochs=50,                     # Maximum number of training epochs
         imgsz=640,                     # Input image size used during training
         batch=8,                       # Number of images processed per training step
@@ -43,7 +43,7 @@ def main():
         seed=42,                       # Makes training more reproducible
 
         workers=0,                     # Safer on Windows; use 2 or 4 on Linux
-        project="runs/classify",       # Output folder
+        project="runs_g2/classify",       # Output folder
         name="train",                  # Experiment name
         exist_ok=True,                 # Overwrite/reuse folder if it already exists
 

@@ -6,8 +6,8 @@ from PIL import Image
 # ============================================================
 # Configuration
 # ============================================================
-RAW_DATASET_DIR = Path("photos")
-OUTPUT_DATASET_DIR = Path("traffic_sign_dataset")
+RAW_DATASET_DIR = Path("photos_g2")
+OUTPUT_DATASET_DIR = Path("traffic_sign_dataset_g2")
 
 CLASSES = [
     "Stop",
