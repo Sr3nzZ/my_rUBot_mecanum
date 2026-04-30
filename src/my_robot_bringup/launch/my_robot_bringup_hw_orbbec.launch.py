@@ -3,7 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
 
@@ -14,7 +14,7 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
 
     # ================================================================
-    # Global launch arguments
+    # Launch configurations
     # ================================================================
     robot_model = LaunchConfiguration('robot_model')
 
@@ -38,6 +38,9 @@ def generate_launch_description():
     enable_gyro = LaunchConfiguration('enable_gyro')
     connection_delay = LaunchConfiguration('connection_delay')
 
+    # ================================================================
+    # Declare arguments
+    # ================================================================
     declare_robot_model = DeclareLaunchArgument(
         'robot_model',
         default_value='robot_arm/my_simple_robot.urdf',
@@ -62,9 +65,7 @@ def generate_launch_description():
         description='Frame ID for RPLidar data'
     )
 
-    # ================================================================
-    # Gemini2 camera arguments
-    # ================================================================
+    # Gemini2 parameters: same as the terminal command that works
     declare_color_width = DeclareLaunchArgument(
         'color_width',
         default_value='640',
@@ -140,7 +141,7 @@ def generate_launch_description():
     declare_connection_delay = DeclareLaunchArgument(
         'connection_delay',
         default_value='3000',
-        description='Connection delay in milliseconds'
+        description='Gemini2 connection delay in milliseconds'
     )
 
     # ================================================================
@@ -166,7 +167,7 @@ def generate_launch_description():
     )
 
     # ================================================================
-    # Robot driver
+    # Mecanum robot driver
     # ================================================================
     robot_driver_hw_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -183,6 +184,10 @@ def generate_launch_description():
 
     # ================================================================
     # Orbbec Gemini2 camera
+    #
+    # IMPORTANT:
+    # Only pass the parameters that were verified to work from terminal.
+    # Do not force extra internal parameters unless needed.
     # ================================================================
     gemini2_hw_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -197,14 +202,17 @@ def generate_launch_description():
             'color_height': color_height,
             'color_fps': color_fps,
             'color_format': color_format,
+
             'depth_width': depth_width,
             'depth_height': depth_height,
             'depth_fps': depth_fps,
             'depth_registration': depth_registration,
+
             'enable_ir': enable_ir,
             'enable_point_cloud': enable_point_cloud,
             'enable_accel': enable_accel,
             'enable_gyro': enable_gyro,
+
             'connection_delay': connection_delay,
         }.items()
     )
@@ -252,9 +260,26 @@ def generate_launch_description():
     ld.add_action(declare_enable_gyro)
     ld.add_action(declare_connection_delay)
 
+    # Start robot_state_publisher first
     ld.add_action(robot_state_publisher_node)
-    ld.add_action(robot_driver_hw_launch)
+
+    # Start Gemini2 first, with no USB serial devices active yet
     ld.add_action(gemini2_hw_launch)
-    ld.add_action(rplidar_hw_launch)
+
+    # Start Arduino / mecanum driver after Gemini2 initialization
+    ld.add_action(
+        TimerAction(
+            period=10.0,
+            actions=[robot_driver_hw_launch]
+        )
+    )
+
+    # Start RPLidar last
+    ld.add_action(
+        TimerAction(
+            period=15.0,
+            actions=[rplidar_hw_launch]
+        )
+    )
 
     return ld
