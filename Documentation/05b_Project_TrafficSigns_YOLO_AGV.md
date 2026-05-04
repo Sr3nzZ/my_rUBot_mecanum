@@ -208,11 +208,11 @@ ros2 launch my_robot_ai_identification rubot_nav2_detection_targets.launch.py us
 You can launch all nodes with only one launch file:
 ````bash
 ros2 launch my_robot_ai_identification ai_navigation.launch.py \
-  map_file:=map_lab.yaml \
-  params_file:=nav2_lab.yaml \
-  yolo_params:=yolo_params_lab.yaml \
-  nav_params:=yolo_targets_lab.yaml \
-  signs_file:=sign_positions_lab.yaml
+  map_file:=my_map2.yaml \
+  params_file:=rubot_real_lidar.yaml \
+  yolo_params:=yolo_params_real.yaml \
+  nav_params:=yolo_targets_real.yaml \
+  signs_file:=sign_positions_real.yaml
 ````
 
 | AI Identification and Navigation video | Code execution video |

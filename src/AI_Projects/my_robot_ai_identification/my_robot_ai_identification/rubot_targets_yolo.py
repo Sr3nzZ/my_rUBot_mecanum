@@ -13,8 +13,6 @@ class NavigationTask(Node):
     def __init__(self):
         super().__init__('custom_nav2')
 
-        self.declare_parameter('use_sim_time', False)
-
         self.declare_parameter('initial_pose', [0.0, 0.0, 0.0])
         self.declare_parameter('signal_waypoint', [2.1, 0.6, 1.57])
         self.declare_parameter('target_pose', [3.5, -0.2, 1.57])

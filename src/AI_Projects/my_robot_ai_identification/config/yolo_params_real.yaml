@@ -4,5 +4,5 @@ object_detection:
 
     modelYolo: yolov8n_custom.pt
     topic: /image_raw
-    confidence: 0.30
+    confidence: 0.40
     front_distance: 1.0
