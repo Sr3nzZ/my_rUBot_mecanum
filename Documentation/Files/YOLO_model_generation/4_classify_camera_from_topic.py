@@ -12,7 +12,7 @@ from cv_bridge import CvBridge
 # ==============================
 # PARAMETERS
 # ==============================
-MODEL_PATH = "runs/classify/train/weights/best.pt"
+MODEL_PATH = "runs_g2/classify/train/weights/best.pt"
 IMAGE_TOPIC = "/image_raw"
 IMG_SIZE = 640
 CONF_THRESHOLD = 0.25
@@ -50,6 +50,9 @@ class YoloClassificationNode(Node):
             self.get_logger().error(f"cv_bridge error: {e}")
             return
 
+
+        #circle detections.
+        
         # ------------------------------
         # YOLO CLASSIFICATION
         # ------------------------------
@@ -79,8 +82,8 @@ class YoloClassificationNode(Node):
         # DRAW TEXT CENTERED AT TOP
         # ------------------------------
         font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 1.0
-        thickness = 2
+        font_scale = 0.25
+        thickness = 1
 
         text_size, _ = cv2.getTextSize(text, font, font_scale, thickness)
         text_width, text_height = text_size
