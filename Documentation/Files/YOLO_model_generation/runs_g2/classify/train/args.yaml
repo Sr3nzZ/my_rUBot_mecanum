@@ -107,4 +107,4 @@ auto_augment: randaugment
 erasing: 0.1
 cfg: null
 tracker: botsort.yaml
-save_dir: F:\PROJECTS\ROBOTICA\RUBOT_MECANUM\my_rUBot_mecanum\runs\classify\runs_g2\classify\train
+save_dir: /home/sr3nzz/Escritorio/Uni/4t/Robotica/Mecanum/my_rUBot_mecanum/Documentation/Files/YOLO_model_generation/runs/classify/runs_g2/classify/train
