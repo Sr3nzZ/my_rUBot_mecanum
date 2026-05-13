@@ -318,27 +318,27 @@ class YoloObjectDetection(Node):
             return
 
         actions = {
-            'Prohibido': {
+            'Forbidden': {
                 'dx': self.wp_forward_m,
                 'dy': +self.wp_lateral_m,
                 'log': 'bypass waypoint'
             },
-            'STOP': {
+            'Stop': {
                 'dx': self.wp_forward_m,
                 'dy': 0.0,
                 'log': 'stop + forward waypoint'
             },
-            'Ceda': {
+            'Give': {
                 'dx': self.wp_forward_m,
                 'dy': 0.0,
                 'log': 'yield + forward waypoint'
             },
-            'Derecha': {
+            'Right': {
                 'dx': self.wp_forward_m,
                 'dy': -self.wp_lateral_m,
                 'log': 'right waypoint'
             },
-            'Izquierda': {
+            'Left': {
                 'dx': self.wp_forward_m,
                 'dy': +self.wp_lateral_m,
                 'log': 'left waypoint'
@@ -347,12 +347,13 @@ class YoloObjectDetection(Node):
 
         for sign_name, action in actions.items():
 
-            if sign_name not in detected_signs:
+            if action not in detected_signs:
                 continue
 
             if not self.should_react(sign_name):
                 continue
 
+            self.get_logger().info("HI")
             last_time = self.last_trigger_time.get(sign_name, -1e9)
 
             if now - last_time < self.cooldown_repeat_s:

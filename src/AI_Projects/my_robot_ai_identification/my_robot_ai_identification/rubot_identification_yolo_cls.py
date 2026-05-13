@@ -33,7 +33,7 @@ class YoloObjectDetection(Node):
         # --------------------------------------------------
         # Parameters
         # --------------------------------------------------
-        self.declare_parameter('modelYolo', 'yolov8n_custom.pt')
+        self.declare_parameter('modelYolo', 'best.pt')
         self.declare_parameter('topic', '/image_raw')
         self.declare_parameter('confidence', 0.30)
         self.declare_parameter('front_distance', 1.0)
@@ -58,9 +58,9 @@ class YoloObjectDetection(Node):
         # Reaction constants
         # --------------------------------------------------
         self.hold_times = {
-            'STOP': 3.0,
-            'Prohibido': 5.0,
-            'Ceda': 2.0,
+            'Stop': 3.0,
+            'Forbidden': 5.0,
+            'Give': 2.0,
         }
 
         self.cooldown_repeat_s = 5.0
@@ -329,27 +329,27 @@ class YoloObjectDetection(Node):
             return
 
         actions = {
-            'Prohibido': {
+            'Forbidden': {
                 'dx': self.wp_forward_m,
                 'dy': +self.wp_lateral_m,
                 'log': 'bypass waypoint'
             },
-            'STOP': {
+            'Stop': {
                 'dx': self.wp_forward_m,
                 'dy': 0.0,
                 'log': 'stop + forward waypoint'
             },
-            'Ceda': {
+            'Give': {
                 'dx': self.wp_forward_m,
                 'dy': 0.0,
                 'log': 'yield + forward waypoint'
             },
-            'Derecha': {
+            'Right': {
                 'dx': self.wp_forward_m,
                 'dy': -self.wp_lateral_m,
                 'log': 'right waypoint'
             },
-            'Izquierda': {
+            'Left': {
                 'dx': self.wp_forward_m,
                 'dy': +self.wp_lateral_m,
                 'log': 'left waypoint'
