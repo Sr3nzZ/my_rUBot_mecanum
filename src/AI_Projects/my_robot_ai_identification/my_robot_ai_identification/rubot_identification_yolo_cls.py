@@ -33,9 +33,9 @@ class YoloObjectDetection(Node):
         # --------------------------------------------------
         # Parameters
         # --------------------------------------------------
-        self.declare_parameter('modelYolo', 'yolov8n_custom.pt')
+        self.declare_parameter('modelYolo', 'yolo11n_cls_g1.pt')
         self.declare_parameter('topic', '/image_raw')
-        self.declare_parameter('confidence', 0.30)
+        self.declare_parameter('confidence', 0.40)
         self.declare_parameter('front_distance', 1.0)
         self.declare_parameter('signs_file', '')
 
@@ -59,8 +59,8 @@ class YoloObjectDetection(Node):
         # --------------------------------------------------
         self.hold_times = {
             'STOP': 3.0,
-            'Prohibido': 5.0,
-            'Ceda': 2.0,
+            'Forbidden': 5.0,
+            'Give': 2.0,
         }
 
         self.cooldown_repeat_s = 5.0
@@ -329,7 +329,7 @@ class YoloObjectDetection(Node):
             return
 
         actions = {
-            'Prohibido': {
+            'Forbidden': {
                 'dx': self.wp_forward_m,
                 'dy': +self.wp_lateral_m,
                 'log': 'bypass waypoint'
@@ -339,25 +339,26 @@ class YoloObjectDetection(Node):
                 'dy': 0.0,
                 'log': 'stop + forward waypoint'
             },
-            'Ceda': {
+            'Give': {
                 'dx': self.wp_forward_m,
                 'dy': 0.0,
                 'log': 'yield + forward waypoint'
             },
-            'Derecha': {
+            'Right': {
                 'dx': self.wp_forward_m,
                 'dy': -self.wp_lateral_m,
                 'log': 'right waypoint'
             },
-            'Izquierda': {
+            'Left': {
                 'dx': self.wp_forward_m,
                 'dy': +self.wp_lateral_m,
                 'log': 'left waypoint'
             }
         }
+        self.get_logger().info(f"handle_signs received: {detected_signs}")
 
         for sign_name, action in actions.items():
-
+            #self.get_logger().info(f"Checking action: {sign_name}")
             if sign_name not in detected_signs:
                 continue
 
