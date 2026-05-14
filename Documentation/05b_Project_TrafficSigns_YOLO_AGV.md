@@ -186,7 +186,7 @@ We have created a full launch file `ai_navigation.launch.py` that launches the 3
 You can launch all nodes with only one launch file:
 ```bash
 ros2 launch my_robot_ai_identification ai_navigation.launch.py \
-  map_file:=map_square3m_walls.yaml \
+  map_file:=map_square4m_sign.yaml \
   params_file:=rubot_sw_lidar.yaml \
   use_sim_time:=true \
   yolo_params:=yolo_params_sw.yaml \
