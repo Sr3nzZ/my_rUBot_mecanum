@@ -108,12 +108,13 @@ velocity_smoother:
     enable_stamped_cmd_vel: false
     feedback: "OPEN_LOOP"
 
-    max_velocity: [0.15, 0.15, 0.8]
-    min_velocity: [-0.15, -0.15, -0.8]
-    max_accel: [1.0, 1.0, 1.8]
-    max_decel: [-1.0, -1.0, -1.8]
+    max_velocity: [0.15, 0.05, 0.45]
+    min_velocity: [-0.02, -0.05, -0.45]
 
-    deadband_velocity: [0.0, 0.0, 0.0]
+    max_accel: [0.8, 0.4, 0.9]
+    max_decel: [-0.8, -0.4, -0.9]
+
+    deadband_velocity: [0.005, 0.005, 0.005]
 
     velocity_timeout: 1.0
     odom_topic: "odom"
@@ -134,8 +135,8 @@ controller_server:
     # Progress checker parameters
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      required_movement_radius: 0.05
-      movement_time_allowance: 20.0
+      required_movement_radius: 0.03
+      movement_time_allowance: 35.0
 
     general_goal_checker:
       stateful: False
@@ -147,40 +148,54 @@ controller_server:
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: False
-      min_vel_x: -0.15  # Redueix la velocitat lineal màxima (abans 0.0)
-      min_vel_y: -0.15  # Redueix la velocitat lineal màxima (abans 0.0)
-      max_vel_x: 0.15  # Redueix la velocitat lineal màxima (abans 0.22)
-      max_vel_y: 0.15  # Redueix la velocitat lineal màxima (abans 0.0)
-      max_vel_theta: 0.8 # Redueix la velocitat angular màxima (abans 1.0)
+
+      min_vel_x: -0.02
+      min_vel_y: -0.05
+      min_vel_theta: -0.45
+      max_vel_x: 0.15
+      max_vel_y: 0.05
+      max_vel_theta: 0.45
+
+      trans_stopped_velocity: 0.01
       min_speed_xy: 0.0
-      max_speed_xy: 0.18 # Redueix la velocitat màxima combinada XY (abans 0.22)
-      min_speed_theta: 0.0
-      acc_lim_x: 1.0   # Redueix l'acceleració lineal (abans 2.5)
-      acc_lim_y: 1.0
-      acc_lim_theta: 1.8 # Redueix l'acceleració angular (abans 3.2)
-      decel_lim_x: -1.0 # Redueix la desacceleració lineal (abans -2.5)
-      decel_lim_y: -1.0
-      decel_lim_theta: -1.8 # Redueix la desacceleració angular (abans -3.2)
-      vx_samples: 10
-      vy_samples: 5  # Augmenta el nombre de mostres de velocitat en Y (0 per defecte)
-      vtheta_samples: 20
+      max_speed_xy: 0.17
+
+      acc_lim_x: 0.8
+      acc_lim_y: 0.4
+      acc_lim_theta: 0.9
+
+      decel_lim_x: -0.8
+      decel_lim_y: -0.4
+      decel_lim_theta: -0.9
+
+      vx_samples: 15
+      vy_samples: 3
+      vtheta_samples: 21
+
       sim_time: 1.0
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.3
+
       xy_goal_tolerance: 0.12
-      trans_stopped_velocity: 0.02
+
       short_circuit_trajectory_evaluation: True
       stateful: True
+
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 0.02
-      PathAlign.scale: 24.0
-      PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 18.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 24.0
-      GoalDist.scale: 18.0
-      RotateToGoal.scale: 16.0
+
+      BaseObstacle.scale: 0.5
+
+      PathAlign.scale: 12.0
+      PathAlign.forward_point_distance: 0.40
+
+      #GoalAlign.scale: 18.0
+      #GoalAlign.forward_point_distance: 0.40
+
+      PathDist.scale: 8.0
+      #GoalDist.scale: 16.0
+
+      RotateToGoal.scale: 6.0
       RotateToGoal.slowing_factor: 2.0
       RotateToGoal.lookahead_time: -1.0
 
@@ -197,10 +212,10 @@ local_costmap:
       robot_base_frame: base_footprint
       use_sim_time: True
       rolling_window: true
-      width: 3
-      height: 3
+      width: 2
+      height: 2
       resolution: 0.05
-      robot_radius: 0.22
+      robot_radius: 0.20
       transform_tolerance: 0.3
       plugins: ["obstacle_layer", "inflation_layer"]
 
@@ -223,7 +238,7 @@ local_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: True
         inflation_radius: 0.30
-        cost_scaling_factor: 2.0
+        cost_scaling_factor: 0.1
 
       always_send_full_costmap: True
 
@@ -235,7 +250,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_footprint
       use_sim_time: True
-      robot_radius: 0.22
+      robot_radius: 0.20
       resolution: 0.05
       track_unknown_space: true
       transform_tolerance: 0.3
@@ -263,8 +278,8 @@ global_costmap:
 
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.30
-        cost_scaling_factor: 2.0
+        inflation_radius: 0.5
+        cost_scaling_factor: 0.2
 
       always_send_full_costmap: True
 

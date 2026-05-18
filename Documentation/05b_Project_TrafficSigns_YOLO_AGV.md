@@ -54,13 +54,12 @@ You have now your custom docker ROS2 workspace ready!
 
 To proceed with the signal identification we first bringup the robot and navigate from initial pose to final target.
 
-- Bringup the robot
+- **Bringup the robot**
     - In simulation:
     ````shell
-    ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml use_sim_time:=true x0:=0.5 y0:=-1.5 yaw0:=1.57 robot:=rubot/rubot_mecanum.urdf custom_world:=square4m_sign.world
+    ros2 launch my_robot_bringup my_robot_bringup_sw.launch.xml use_sim_time:=true x0:=0.5 y0:=-1.5 yaw0:=1.57 robot:=rubot/rubot_mecanum.urdf custom_world:=square4m_sign_left.world
     ````
     >Important: Include a traffic signal in the world. When using "square4m_sign.world" you can change the sign model on line 30 changing the traffic sign model name
-    - In real robot rUBot or LIMO the bringup is already made when turned on
 
 - Generate a map
     - In simulation:
@@ -76,7 +75,7 @@ To proceed with the signal identification we first bringup the robot and navigat
     cd src/Navigation_Projects/my_robot_navigation2/map/
     ros2 run nav2_map_server map_saver_cli -f map_square4m_sign
     ````
-- Navigate using the Map:
+- **Navigate using the Map**:
     - In simulation:
         ````bash
         ros2 launch my_robot_navigation2 navigation2_robot.launch.py use_sim_time:=true map_file:=map_square4m_sign.yaml params_file:=rubot_sw_lidar.yaml
@@ -132,23 +131,21 @@ The schematic nodes, topics and messages are shown below:
 **Gazebo Simulation** Test:
 - If you want to execute in Gazebo simulation, you have to execute:
     ````shell
-    ros2 launch my_robot_ai_identification rubot_identification_yolo.launch.py yolo_params_file:=yolo_params_sw.yaml \
-    signs_file:=sign_positions_sw.yaml
+    ros2 launch my_robot_ai_identification rubot_identification_yolo.launch.py yolo_params_file:=yolo_params_sw.yaml signs_file:=sign_positions_sw.yaml
     ````
     > Review the correct parameters!
 
 **Hardware** Test in real robot:
 - If you want to execute on real `rUBot robot`, you have to execute:
     ````shell
-    ros2 launch my_robot_ai_identification rubot_identification_yolo.launch.py yolo_params_file:=yolo_params_real.yaml \
-    signs_file:=sign_positions_real.yaml
+    ros2 launch my_robot_ai_identification rubot_identification_yolo.launch.py yolo_params_file:=yolo_params_real.yaml signs_file:=sign_positions_real.yaml
     ````
     > Review the correct parameters!
 
-To obtain a wp published in `/traffic_waypoint` topic, you have to:
-- place the robot closer to the signal (less than 0.5 m, review the parameter `front_distance` in `yolo_params_real.yaml`)
+To obtain a **wp published** in `/traffic_waypoint` topic, you have to:
 - the detected sign has to be in the `sign_positions_real.yaml` file with the correct coordinates and name. You can add more signs and positions if needed.
-- You need to launch `navigation2_robot.launch.py` to have the TF between `map` and `base_link` frames, needed for the correct detection of the sign position respect to the robot.
+- place the robot closer to the signal (less than the threshold of 0.75 m, review the parameter `front_distance` in `yolo_params_real.yaml`). Not considered in the current simplified version.
+- You need to launch `navigation2_robot.launch.py` to have the TF between `map` and `base_link` frames, needed for the correct detection of the sign position respect to the robot. Not considered in the current simplified version.
 
 ## **4. Custom Navigation with signal detection**
 
@@ -171,7 +168,14 @@ In `config` folder we have to review the following files for the correct paramet
 The schematic nodes, topics and messages are shown below:
     ![](./Images/07_Yolo/12_yolo_custom_nav2.png)
 
+**Gazebo Simulation** Test:
+- Launch the `custom_nav2` node with:
+    ````shell
+    ros2 launch my_robot_ai_identification rubot_targets_yolo.launch.py targets_file:=yolo_targets_sw.yaml
+    ````
+    > Review the correct parameters!
 
+**Hardware** Test in real robot:
 - Launch the `custom_nav2` node with:
     ````shell
     ros2 launch my_robot_ai_identification rubot_targets_yolo.launch.py targets_file:=yolo_targets_real.yaml

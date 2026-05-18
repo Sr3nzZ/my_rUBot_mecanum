@@ -4,10 +4,10 @@ custom_nav2:
 
     initial_pose: [0.5, -1.5, 1.57]
 
-    signal_waypoint: [0.5, -1.1, 1.75]
+    signal_waypoint: [0.5, -1.2, 1.75]
 
     target_pose: [0.4, 1.1, 1.57]
 
-    reading_stop_time: 1.5
+    reading_stop_time: 4.0
 
     wait_for_traffic_wp: 10.0

@@ -39,7 +39,10 @@ class YoloObjectDetection(Node):
         self.image_topic = self.get_parameter('topic').value
         self.confidence = float(self.get_parameter('confidence').value)
         signs_file = self.get_parameter('signs_file').value
-        self.signal_waypoint_xyz = self.get_parameter('signal_waypoint').value
+
+        self.signal_waypoint_xyz = (
+            self.get_parameter('signal_waypoint').value
+        )
 
         if not signs_file:
             raise ValueError("Parameter 'signs_file' is empty")
@@ -50,15 +53,18 @@ class YoloObjectDetection(Node):
         self.map_frame = 'map'
 
         # --------------------------------------------------
-        # Waypoint offsets
+        # Reaction constants
         # --------------------------------------------------
+        self.hold_times = {
+            'STOP': 3.0,
+            'Forbidden': 5.0,
+            'Give': 2.0,
+        }
+
+        self.cooldown_repeat_s = 2.0
+
         self.wp_forward_m = 0.6
         self.wp_lateral_m = 0.6
-
-        # --------------------------------------------------
-        # State
-        # --------------------------------------------------
-        self.waypoint_already_published = False
 
         # --------------------------------------------------
         # Load sign positions
@@ -114,6 +120,12 @@ class YoloObjectDetection(Node):
             '/traffic_waypoint',
             10
         )
+
+        # --------------------------------------------------
+        # State
+        # --------------------------------------------------
+        self.hold_until = 0.0
+        self.last_trigger_time = {}
 
         # --------------------------------------------------
         # Info
@@ -172,9 +184,6 @@ class YoloObjectDetection(Node):
     def create_waypoint(self, sign_name, dx_forward, dy_left):
 
         if sign_name not in self.sign_positions:
-            self.get_logger().warn(
-                f"Sign '{sign_name}' not found in sign_positions."
-            )
             return None
 
         sx, sy = self.sign_positions[sign_name]
@@ -227,9 +236,6 @@ class YoloObjectDetection(Node):
     # --------------------------------------------------
     def camera_callback(self, msg):
 
-        if self.waypoint_already_published:
-            return
-
         try:
             img = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
 
@@ -275,8 +281,6 @@ class YoloObjectDetection(Node):
 
             inf.class_name = class_name
 
-            # Classification has no bounding box.
-            # Use full image as virtual box.
             height, width = img.shape[:2]
 
             inf.left = 0
@@ -318,21 +322,26 @@ class YoloObjectDetection(Node):
         self.yolo_pub.publish(yolo_msg)
 
     # --------------------------------------------------
-    # Simplified sign decision logic
+    # Sign decision logic
     # --------------------------------------------------
     def handle_signs(self, detected_signs):
 
-        if self.waypoint_already_published:
+        now = (
+            self.get_clock().now().nanoseconds / 1e9
+        )
+
+        if now < self.hold_until:
             return
 
         actions = {
+
             'Forbidden': {
                 'dx': self.wp_forward_m,
                 'dy': +self.wp_lateral_m,
                 'log': 'bypass waypoint'
             },
 
-            'Stop': {
+            'STOP': {
                 'dx': self.wp_forward_m,
                 'dy': 0.0,
                 'log': 'stop + forward waypoint'
@@ -361,16 +370,34 @@ class YoloObjectDetection(Node):
             f"handle_signs received: {detected_signs}"
         )
 
-        for sign_name in detected_signs:
+        for sign_name, action in actions.items():
 
-            if sign_name not in actions:
+            if sign_name not in detected_signs:
                 continue
 
-            action = actions[sign_name]
+            last_time = self.last_trigger_time.get(
+                sign_name,
+                -1e9
+            )
+
+            if (
+                now - last_time
+                < self.cooldown_repeat_s
+            ):
+                continue
 
             self.get_logger().info(
-                f"[SIGN] {sign_name} | {action['log']}"
+                f"[SIGN] {sign_name} | "
+                f"{action['log']}"
             )
+
+            self.last_trigger_time[sign_name] = now
+
+            if sign_name in self.hold_times:
+                self.hold_until = (
+                    now
+                    + self.hold_times[sign_name]
+                )
 
             waypoint = self.create_waypoint(
                 sign_name,
@@ -378,22 +405,15 @@ class YoloObjectDetection(Node):
                 dy_left=action['dy']
             )
 
-            if waypoint is None:
-                self.get_logger().warn(
-                    f"No waypoint created for sign: {sign_name}"
+            if waypoint is not None:
+
+                self.waypoint_pub.publish(waypoint)
+
+                self.get_logger().info(
+                    "Published /traffic_waypoint"
                 )
-                return
 
-            self.waypoint_pub.publish(waypoint)
-
-            self.waypoint_already_published = True
-
-            self.get_logger().info(
-                "Published one /traffic_waypoint. "
-                "Further waypoint publications disabled and stopped YOLO detection."
-            )
-
-            return
+            break
 
 
 def main(args=None):

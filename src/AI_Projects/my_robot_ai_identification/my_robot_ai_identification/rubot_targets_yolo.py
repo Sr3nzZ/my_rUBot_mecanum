@@ -34,7 +34,7 @@ class NavigationTask(Node):
         )
 
         self.declare_parameter(
-            'reading_stop_time',
+            'reading_signal_time',
             1.5
         )
 
@@ -58,9 +58,9 @@ class NavigationTask(Node):
             self.get_parameter('target_pose').value
         )
 
-        self.reading_stop_time = float(
+        self.reading_signal_time = float(
             self.get_parameter(
-                'reading_stop_time'
+                'reading_signal_time'
             ).value
         )
 
@@ -106,8 +106,8 @@ class NavigationTask(Node):
         )
 
         self.get_logger().info(
-            f"reading_stop_time: "
-            f"{self.reading_stop_time:.1f} s"
+            f"reading_signal_time: "
+            f"{self.reading_signal_time:.1f} s"
         )
 
         self.get_logger().info(
@@ -129,6 +129,7 @@ class NavigationTask(Node):
         pose = PoseStamped()
 
         pose.header.frame_id = 'map'
+
         pose.header.stamp = (
             self.get_clock().now().to_msg()
         )
@@ -161,6 +162,14 @@ class NavigationTask(Node):
     # Traffic waypoint callback
     # --------------------------------------------------
     def traffic_waypoint_callback(self, msg):
+
+        if self.traffic_waypoint is not None:
+
+            self.get_logger().info(
+                "Ignoring extra /traffic_waypoint because one was already received."
+            )
+
+            return
 
         self.traffic_waypoint = msg
 
@@ -325,24 +334,37 @@ class NavigationTask(Node):
             self.target_pose_xyz
         )
 
+        # Clear previous waypoint
         self.traffic_waypoint = None
 
+        # --------------------------------------------------
+        # Go to signal waypoint
+        # --------------------------------------------------
         self.go_to_pose(
             signal_pose,
             "signal waypoint"
         )
 
+        # --------------------------------------------------
+        # Wait while YOLO reads signal
+        # --------------------------------------------------
         self.wait_seconds(
-            self.reading_stop_time,
-            "Reading traffic sign"
+            self.reading_signal_time,
+            "Reading traffic signal"
         )
 
+        # --------------------------------------------------
+        # Wait for waypoint from YOLO
+        # --------------------------------------------------
         traffic_pose = (
             self.wait_for_traffic_waypoint(
                 self.wait_for_traffic_wp
             )
         )
 
+        # --------------------------------------------------
+        # Go to traffic waypoint
+        # --------------------------------------------------
         if traffic_pose is not None:
 
             self.go_to_pose(
@@ -356,6 +378,9 @@ class NavigationTask(Node):
                 "Continuing directly to final target."
             )
 
+        # --------------------------------------------------
+        # Go to final target
+        # --------------------------------------------------
         self.go_to_pose(
             target_pose,
             "final target"
