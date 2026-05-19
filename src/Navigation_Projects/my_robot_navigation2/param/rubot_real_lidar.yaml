@@ -2,10 +2,10 @@ amcl:
   ros__parameters:
     set_initial_pose: true
     initial_pose:
-      x: 0.0
-      y: 0.0
+      x: 2.43
+      y: -0.132
       z: 0.0
-      yaw: 0.0
+      yaw: 3.14
     use_sim_time: false
     alpha1: 0.3   # Soroll rotacional degut a la rotació - augmenta (abans 0.2)
     alpha2: 0.3   # Soroll translacional degut a la rotació - augmenta (abans 0.2)
@@ -123,6 +123,7 @@ velocity_smoother:
 controller_server:
   ros__parameters:
     use_sim_time: false
+    current_goal_checker: "goal_checker"
     controller_frequency: 8.0 #Abans 10.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.001
@@ -237,7 +238,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: True
-        inflation_radius: 0.30
+        inflation_radius: 0.15
         cost_scaling_factor: 0.1
 
       always_send_full_costmap: True
@@ -278,7 +279,7 @@ global_costmap:
 
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.5
+        inflation_radius: 0.3
         cost_scaling_factor: 0.2
 
       always_send_full_costmap: True

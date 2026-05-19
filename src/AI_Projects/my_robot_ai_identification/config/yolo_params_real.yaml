@@ -3,5 +3,5 @@ object_detection:
     use_sim_time: false
     modelYolo: best.pt
     topic: /image_raw
-    confidence: 0.40
-    front_distance: 0.5
+    confidence: 0.70
+    signal_waypoint: [2.4, -0.1, 3.14]
