@@ -139,10 +139,10 @@ controller_server:
       movement_time_allowance: 35.0
 
     general_goal_checker:
-      stateful: False
+      stateful: true
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.20   # Augmenta la tolerància de posició XY (abans 0.25)
-      yaw_goal_tolerance: 0.35 # Augmenta la tolerància d'orientació (aproximadament 45 graus, abans 0.25 radians)
+      yaw_goal_tolerance: 0.25 # Augmenta la tolerància d'orientació (aproximadament 45 graus, abans 0.25 radians)
 
     # DWB parameters
     FollowPath:
@@ -156,8 +156,8 @@ controller_server:
       max_vel_y: 0.05
       max_vel_theta: 0.45
 
-      trans_stopped_velocity: 0.01
-      min_speed_xy: 0.0
+      trans_stopped_velocity: 0.04
+      min_speed_xy: 0.06
       max_speed_xy: 0.17
 
       acc_lim_x: 0.8

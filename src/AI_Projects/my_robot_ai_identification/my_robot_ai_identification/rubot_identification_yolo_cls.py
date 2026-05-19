@@ -52,8 +52,8 @@ class YoloObjectDetection(Node):
         # --------------------------------------------------
         # Waypoint offsets
         # --------------------------------------------------
-        self.wp_forward_m = 0.6
-        self.wp_lateral_m = 0.6
+        self.wp_forward_m = 0.5
+        self.wp_lateral_m = 0.7
 
         # --------------------------------------------------
         # State

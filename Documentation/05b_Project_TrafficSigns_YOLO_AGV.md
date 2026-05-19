@@ -16,7 +16,10 @@ For this project we have created a new package "my_robot_ai_identification" wher
 The needed Installation for YOLO identification is only to install "ultralytics" on the ROS2 Humble environment. Open a terminal and type:
 ````shell
 pip install ultralytics
-python3 -m pip install numpy==1.23.5 --force-reinstall
+python3 -m pip uninstall -y opencv-python opencv-contrib-python numpy
+python3 -m pip install numpy==1.26.4 opencv-python==4.9.0.80 --force-reinstall
+python3 -m pip uninstall -y transforms3d
+python3 -m pip install transforms3d==0.4.2
 ````
 
 For simulation, you won't be able to use TheConstruct environment. You have to use your **Docker container ROS2 custom environment**:
