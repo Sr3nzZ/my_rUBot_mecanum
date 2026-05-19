@@ -8,22 +8,10 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
 
-    model_arg = DeclareLaunchArgument(
-        'modelYolo',
-        default_value='best.pt',
-        description='YOLO model filename inside models/'
-    )
-
-    topic_arg = DeclareLaunchArgument(
-        'topic',
-        default_value='/image_raw',
-        description='Image topic'
-    )
-
-    front_distance_arg = DeclareLaunchArgument(
-        'front_distance',
-        default_value='0.5',
-        description='Maximum valid distance to sign in meters'
+    yolo_params_arg = DeclareLaunchArgument(
+        'yolo_params_file',
+        default_value='yolo_params_real.yaml',
+        description='YOLO params YAML filename inside config/'
     )
 
     signs_file_arg = DeclareLaunchArgument(
@@ -31,6 +19,12 @@ def generate_launch_description():
         default_value='sign_positions_real.yaml',
         description='Signs YAML filename inside config/'
     )
+
+    yolo_params_file = PathJoinSubstitution([
+        FindPackageShare('my_robot_ai_identification'),
+        'config',
+        LaunchConfiguration('yolo_params_file')
+    ])
 
     signs_file = PathJoinSubstitution([
         FindPackageShare('my_robot_ai_identification'),
@@ -43,18 +37,16 @@ def generate_launch_description():
         executable='rubot_identification_yolo_cls_exec',
         name='object_detection',
         output='screen',
-        parameters=[{
-            'modelYolo': LaunchConfiguration('modelYolo'),
-            'topic': LaunchConfiguration('topic'),
-            'front_distance': LaunchConfiguration('front_distance'),
-            'signs_file': signs_file,
-        }]
+        parameters=[
+            yolo_params_file,
+            {
+                'signs_file': signs_file,
+            }
+        ]
     )
 
     return LaunchDescription([
-        model_arg,
-        topic_arg,
-        front_distance_arg,
+        yolo_params_arg,
         signs_file_arg,
         node
     ])
