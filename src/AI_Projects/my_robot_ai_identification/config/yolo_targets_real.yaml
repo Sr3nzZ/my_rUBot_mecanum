@@ -10,4 +10,4 @@ custom_nav2:
 
     reading_signal_time: 4.0
 
-    wait_for_traffic_wp: 10.0
+    wait_for_traffic_wp: 25.0
